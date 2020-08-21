@@ -10,6 +10,11 @@ use Mix.Config
 config :party_time,
   ecto_repos: [PartyTime.Repo]
 
+config :party_time, :pow,
+  user: PartyTime.Users.User,
+  repo: PartyTime.Repo,
+  web_module: PartyTimeWeb
+
 # Configures the endpoint
 config :party_time, PartyTimeWeb.Endpoint,
   url: [host: "localhost"],
@@ -29,3 +34,4 @@ config :phoenix, :json_library, Jason
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
+import_config "config.secret.exs"
