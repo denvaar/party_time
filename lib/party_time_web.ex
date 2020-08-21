@@ -23,6 +23,7 @@ defmodule PartyTimeWeb do
 
       import Plug.Conn
       import PartyTimeWeb.Gettext
+      import Phoenix.LiveView.Controller
       alias PartyTimeWeb.Router.Helpers, as: Routes
     end
   end
@@ -36,6 +37,8 @@ defmodule PartyTimeWeb do
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_flash: 1, get_flash: 2, view_module: 1]
 
+      import Phoenix.LiveView.Helpers
+
       # Include shared imports and aliases for views
       unquote(view_helpers())
     end
@@ -47,6 +50,7 @@ defmodule PartyTimeWeb do
 
       import Plug.Conn
       import Phoenix.Controller
+      import Phoenix.LiveView.Router
     end
   end
 
@@ -54,6 +58,15 @@ defmodule PartyTimeWeb do
     quote do
       use Phoenix.Channel
       import PartyTimeWeb.Gettext
+    end
+  end
+
+  def live_view do
+    quote do
+      use Phoenix.LiveView,
+        layout: {PartyTimeWeb.LayoutView, "live.html"}
+
+      unquote(view_helpers())
     end
   end
 
