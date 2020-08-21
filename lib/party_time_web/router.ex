@@ -6,8 +6,9 @@ defmodule PartyTimeWeb.Router do
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
-    plug :fetch_flash
+    plug :fetch_live_flash
     plug :protect_from_forgery
+    plug :put_root_layout, {PartyTimeWeb.LayoutView, :root}
     plug :put_secure_browser_headers
   end
 
@@ -44,6 +45,7 @@ defmodule PartyTimeWeb.Router do
     pipe_through [:browser, :protected]
 
     get "/", PageController, :index
+    live "/games/trivia", TriviaLive, :index
   end
 
   # Enables LiveDashboard only for development
