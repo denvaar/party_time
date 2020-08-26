@@ -1,0 +1,49 @@
+<h1>Trivia</h1>
+<%= if @is_host do %>
+  <%= if @game.current_question do %>
+    <h4><%= @game.current_question.prompt %></h4>
+    <p><%= @game.current_question.expected_answer %></p>
+    <button phx-click="deem-correct">Correct</button>
+    <button phx-click="deem-incorrect">Incorrect</button>
+  <% end %>
+<% else %>
+  <%= if @game.current_question do %>
+    <h4><%= @game.current_question.prompt %></h4>
+    <%= form_for :crap, "#", [phx_submit: :"submit-answer"], fn _f -> %>
+      <div style="display:flex">
+        <%= text_input :submit_answer, :answer, placeholder: "Type your answer...", style: "margin-right: 10px" %>
+        <%= submit "Submit" %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="game-board-container">
+      <div class="game-board">
+        <%= for category <- @game.categories do %>
+          <div class="category">
+            <div class="question title">
+              <%= category.name %>
+            </div>
+            <%= for question <- category.questions do %>
+              <%= if question.is_available do %>
+                <%= if current_player_in_control?(@game, @current_user_id) do %>
+                  <button
+                    class="question"
+                    phx-click="pick-question"
+                    phx-value-question_id="<%= question.id %>">
+                    <%= question.value %>
+                  </button>
+                <% else %>
+                  <button class="question">
+                    <%= question.value %>
+                  </button>
+                <% end %>
+              <% else %>
+                <button class="question" disabled></button>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

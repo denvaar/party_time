@@ -13,6 +13,8 @@ defmodule PartyTime.Application do
       PartyTimeWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: PartyTime.PubSub},
+      {PartyTime.DynamicSupervisor, []},
+      PartyTime.Presence,
       # Start the Endpoint (http/https)
       PartyTimeWeb.Endpoint
       # Start a worker by calling: PartyTime.Worker.start_link(arg)

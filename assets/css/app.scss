@@ -1,31 +1,75 @@
 /* This file is for your main application css. */
 @import "./phoenix.css";
 
+body {
+    margin: 0;
+    height: 100vh;
+}
+
 /* Alerts and form errors */
 .alert {
-  padding: 15px;
-  margin-bottom: 20px;
-  border: 1px solid transparent;
-  border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
 }
 .alert-info {
-  color: #31708f;
-  background-color: #d9edf7;
-  border-color: #bce8f1;
+    color: #31708f;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
 }
 .alert-warning {
-  color: #8a6d3b;
-  background-color: #fcf8e3;
-  border-color: #faebcc;
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
 }
 .alert-danger {
-  color: #a94442;
-  background-color: #f2dede;
-  border-color: #ebccd1;
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
 }
 .alert p {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 .alert:empty {
-  display: none;
+    display: none;
+}
+
+.party-background {
+    background: linear-gradient(#6039ff, #20a7ff);
+    height: 100vh;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+header > .container {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+}
+
+.profile-image-container {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+.profile-image-container img {
+    width: auto;
+    height: 100%;
+}
+
+.login-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.login-container a {
+    color: #ffa4c6;
+    font-size: 15px;
 }

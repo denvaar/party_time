@@ -1,0 +1,16 @@
+<div class="game-lobby">
+  <h1>Trivia</h1>
+  <p>Join an existing game or start a new one.</p>
+  <button phx-click="create-game">Create Game</button>
+  <hr/>
+
+  <div class="form-group">
+    <%= form_for :crap, "#", [phx_submit: :"join-game"], fn _f -> %>
+      <div style="display:flex">
+        <%= text_input :join_game, :game_code, placeholder: "Enter game ID...", style: "margin-right: 10px" %>
+        <%= submit "Join Game" %>
+      </div>
+    <% end %>
+  </div>
+
+</div>
