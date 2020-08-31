@@ -1,20 +1,52 @@
 <h1>Trivia</h1>
 <%= if @is_host do %>
-  <%= if @game.current_question do %>
-    <h4><%= @game.current_question.prompt %></h4>
-    <p><%= @game.current_question.expected_answer %></p>
-    <button phx-click="deem-correct">Correct</button>
-    <button phx-click="deem-incorrect">Incorrect</button>
+  <%= if @current_question do %>
+    <h4><%= @current_question.prompt %></h4>
+    <p><%= @current_question.expected_answer %></p>
+
+    <%= if @buzz_in_seconds_remaining do %>
+      <p><%= @buzz_in_seconds_remaining %> seconds left...</p>
+    <% end %>
+    <p>Player response: <%= if @player_answer, do: @player_answer, else: '--' %></p>
+    <%= if @player_answer do %>
+      <button phx-click="judge-answer" value="correct">Correct</button>
+      <button phx-click="judge-answer" value="incorrect">Incorrect</button>
+    <% end %>
   <% end %>
 <% else %>
-  <%= if @game.current_question do %>
-    <h4><%= @game.current_question.prompt %></h4>
-    <%= form_for :crap, "#", [phx_submit: :"submit-answer"], fn _f -> %>
-      <div style="display:flex">
-        <%= text_input :submit_answer, :answer, placeholder: "Type your answer...", style: "margin-right: 10px" %>
-        <%= submit "Submit" %>
-      </div>
+  <p><%= player(@game.players, @current_user_id).score %></p>
+
+  <%= if @current_question do %>
+    <h4><%= @current_question.prompt %></h4>
+
+    <%= if @buzz_in_seconds_remaining do %>
+      <p><%= @buzz_in_seconds_remaining %> seconds left...</p>
     <% end %>
+
+    <%= if !player(@game.players, @current_user_id).able_to_answer do %>
+      <button disabled>Buzz-in</button>
+    <% else %>
+      <%= if @buzzed_in_user_id do %>
+        <%= if @buzzed_in_user_id != @current_user_id do %>
+          <button disabled>Buzz-in</button>
+        <% end %>
+
+        <%= if @buzzed_in_user_id == @current_user_id do %>
+          <%= form_for :player_answer, "#", [phx_change: "typing-answer", phx_submit: :"submit-answer"], fn f -> %>
+            <div style="display:flex">
+              <%= text_input f, :answer, value: @player_answer %>
+              <%= submit "Submit" %>
+            </div>
+          <% end %>
+        <% end %>
+      <% else %>
+        <button phx-click="buzz-in">Buzz-in</button>
+      <% end %>
+    <% end %>
+
+
+
+
   <% else %>
     <div class="game-board-container">
       <div class="game-board">
@@ -25,7 +57,7 @@
             </div>
             <%= for question <- category.questions do %>
               <%= if question.is_available do %>
-                <%= if current_player_in_control?(@game, @current_user_id) do %>
+                <%= if player_has_control?(@game, @current_user_id) do %>
                   <button
                     class="question"
                     phx-click="pick-question"
@@ -46,4 +78,25 @@
       </div>
     </div>
   <% end %>
+<% end %>
+
+<%= if @game && @question_answer_history do %>
+  <div>
+    <%= if @buzzed_in_user_id do %>
+      <p>
+        <i>
+          <%= player(@game.players, @buzzed_in_user_id).display_name %> is typing...
+        </i>
+      </p>
+    <% end %>
+    <%= for {user_id, answer, correct?} <- @question_answer_history do %>
+      <p>
+      <%= player(@game.players, user_id).display_name %> answered <%= answer %> <%= if correct?, do: "✅", else: "🚫" %>
+      </p>
+    <% end %>
+  </div>
+<% end %>
+
+<%= if @game do %>
+  <%= render @view_module, "_scoreboard.html", assigns %>
 <% end %>

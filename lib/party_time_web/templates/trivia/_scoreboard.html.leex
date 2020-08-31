@@ -1,0 +1,7 @@
+<%= for player <- players_sorted_by_score(@game.players) do %>
+  <%= if @current_user_id && @current_user_id == player.user_id do %>
+    <p> You Score: <%= player(@game.players, player.user_id).score %></p>
+  <% else %>
+    <p><%= player(@game.players, player.user_id).display_name %> Score: <%= player(@game.players, player.user_id).score %></p>
+  <% end %>
+<% end %>

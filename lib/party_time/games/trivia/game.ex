@@ -17,11 +17,10 @@ defmodule PartyTime.Games.Trivia.Game do
   @type t :: %__MODULE__{
           status: status(),
           players: list(Player.t()),
-          categories: list(Category.t()),
-          current_question: Question.t()
+          categories: list(Category.t())
         }
 
-  defstruct [:current_question, status: :lobby, players: [], categories: []]
+  defstruct status: :lobby, players: [], categories: []
 
   @doc """
   Add player to a Trivia game.
@@ -86,9 +85,9 @@ defmodule PartyTime.Games.Trivia.Game do
   @doc """
   Return a question for the given question id
   """
-  @spec pick_question(t(), atom()) :: t()
+  @spec pick_question(t(), atom()) :: Question.t()
   def pick_question(state, question_id) do
-    %{state | current_question: get_current_question(state, question_id)}
+    get_current_question(state, question_id)
   end
 
   def give_control(state, user_id) do
@@ -99,19 +98,6 @@ defmodule PartyTime.Games.Trivia.Game do
             %{player | is_in_control: user_id == player.user_id}
           end)
     }
-  end
-
-  def get_current_question(state, question_id) do
-    state.categories
-    |> Enum.reduce(
-      [],
-      fn category, questions ->
-        category.questions ++ questions
-      end
-    )
-    |> Enum.find(fn question ->
-      question.id == question_id
-    end)
   end
 
   @doc """
@@ -142,6 +128,7 @@ defmodule PartyTime.Games.Trivia.Game do
       end)
 
     %{state | categories: updated_categories}
+    |> set_game_status()
   end
 
   @doc """
@@ -155,7 +142,9 @@ defmodule PartyTime.Games.Trivia.Game do
         %{player | score: player.score - value, able_to_answer: false}
       end)
 
-    %{state | players: players}
+    state
+    |> set_game_status()
+    |> Map.put(:players, players)
   end
 
   @doc """
@@ -168,12 +157,16 @@ defmodule PartyTime.Games.Trivia.Game do
   @spec correct_answer(t(), pos_integer(), non_neg_integer(), atom()) :: t()
   def correct_answer(state, player_id, value, question_id) do
     players =
-      update_player(state.players, player_id, fn player ->
+      Enum.map(state.players, fn player ->
+        %{player | is_in_control: false}
+      end)
+      |> update_player(player_id, fn player ->
         %{player | is_in_control: true, score: player.score + value}
       end)
 
     %{state | players: players}
     |> mark_question_unavailable(question_id)
+    |> set_game_status()
   end
 
   def set_status(state, status) do
@@ -204,5 +197,35 @@ defmodule PartyTime.Games.Trivia.Game do
         question.id == question_id
       end)
     end)
+  end
+
+  defp get_current_question(state, question_id) do
+    state.categories
+    |> Enum.reduce(
+      [],
+      fn category, questions ->
+        category.questions ++ questions
+      end
+    )
+    |> Enum.find(fn question ->
+      question.id == question_id
+    end)
+  end
+
+  defp set_game_status(state) do
+    state
+    |> check_game_over()
+  end
+
+  defp check_game_over(state) do
+    no_questions_available? =
+      state.categories
+      |> Enum.all?(fn category ->
+        Enum.all?(category.questions, fn question ->
+          question.is_available == false
+        end)
+      end)
+
+    if no_questions_available?, do: %{state | status: :game_over}, else: state
   end
 end

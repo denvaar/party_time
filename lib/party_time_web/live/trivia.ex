@@ -75,7 +75,7 @@ defmodule PartyTimeWeb.TriviaLive do
         category_name,
         prompt,
         expected_answer,
-        value
+        String.to_integer(value)
       )
 
     {:noreply, assign(socket, adding_question_category: nil, game: game)}
