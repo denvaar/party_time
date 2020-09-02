@@ -1,43 +1,63 @@
-<h1>Trivia</h1>
-<p>You're the host! In this game players will be answering questions, and it's your job to determine if their answers are correct. The player with the most points at the end wins.</p>
-<p>You need to create some categories and questions before the game can begin.</p>
+<div class="margin-container">
+  <p>You're the host! It's your job to determine if the answers that players submit are correct.</p>
+  <p>First you need to create some categories and questions before the game can begin.</p>
+</div>
 
-<%= if @adding_question_category != nil do %>
-  <h3>Question for "<%= @adding_question_category %>" category</h3>
-  <form phx-submit="create-question">
-    <div>
-        <input type="text" name="prompt" placeholder="What is the question prompt?" required />
-        <input type="text" name="expected_answer" placeholder="What should the answer be?" required />
-        <input type="number" name="value" placeholder="How many points is it worth?" required />
-        <input type="hidden" name="category_name" value="<%= @adding_question_category %>" />
-      <%= submit "Add Question" %>
-    </div>
-  </form>
-
-<% else %>
-  <h3>Categories</h3>
-  <div class="form-group">
-    <form phx-submit="create-category">
-      <div style="display:flex">
-        <input type="text" name="category_name" placeholder="Category name" autofocus autocomplete="off" required style="margin-right:10px;"/>
-        <%= submit "Add Category" %>
+  <%= if @adding_question_category != nil do %>
+    <h3>Question for "<%= @adding_question_category %>" category</h3>
+    <form phx-submit="create-question">
+      <div>
+          <input type="text" name="prompt" placeholder="What is the question prompt?" required />
+          <input type="text" name="expected_answer" placeholder="What should the answer be?" required />
+          <input type="number" name="value" placeholder="How many points is it worth?" required />
+          <input type="hidden" name="category_name" value="<%= @adding_question_category %>" />
+        <%= submit "Add Question" %>
       </div>
     </form>
-  </div>
-  <ul>
-    <%= for category <- @game.categories do %>
-      <li>
-        <%= category.name %>&nbsp;
-        <a href="#" phx-click="add-question" phx-value-category_name="<%= category.name %>">Add question</a>
-        <ul>
-          <%= for question <- category.questions do %>
-            <li>
-              <%= question.prompt %> (<%= question.value %>)
-            </li>
-          <% end %>
-        </ul>
-      </li>
-    <% end %>
-  </ul>
-  <button phx-click="next">Next</button>
-<% end %>
+
+  <% else %>
+    <div class="margin-container">
+      <h3>Categories</h3>
+      <div class="form-group">
+        <form phx-submit="create-category">
+          <div style="display:flex">
+            <input type="text" name="category_name" placeholder="Category name" autofocus autocomplete="off" required style="margin-right:10px;"/>
+            <%= submit "Add Category" %>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="swiper-viewport" id="swiper-viewport" phx-hook="swiperViewport">
+      <%= if length(@game.categories) == 0 do %>
+        <i>No categories yet.<i>
+      <% end %>
+      <ul class="swiper-items">
+        <%= for category <- @game.categories do %>
+          <li class="swiper-item">
+            <h3><%= category.name %></h3>
+            <div>
+              <a href="#" phx-click="add-question" phx-value-category_name="<%= category.name %>">Edit Questions</a>
+            </div>
+            <!--<ul>
+              <%= for question <- category.questions do %>
+                <li>
+                  <%= question.prompt %> (<%= question.value %>)
+                </li>
+              <% end %>
+            </ul>-->
+          </li>
+        <% end %>
+      </ul>
+      <ul class="swiper-indicators" aria-hidden>
+        <%= for category <- @game.categories do %>
+          <li class="swiper-indicator"></li>
+        <% end %>
+      </ul>
+    </div>
+
+    <div class="margin-container">
+      <button phx-click="next">All Done</button>
+    </div>
+  <% end %>
+</div>

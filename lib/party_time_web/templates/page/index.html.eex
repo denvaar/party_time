@@ -1,7 +1,23 @@
-<ul>
-  <li>
-    <%= link to: Routes.trivia_path(PartyTimeWeb.Endpoint, :index) do %>
+<div class="margin-container">
+  <h3>Games</h3>
+  <div class="available-game">
+    <p><%= link to: Routes.trivia_path(@conn, :index) do %>
       Trivia
-    <% end %>
-  </li>
-</ul>
+    <% end %> - It's pretty much Jeopardy.</p>
+  </div>
+  <!--<div class="available-game">
+    <p><%= link to: Routes.trivia_path(@conn, :index) do %>
+      Snake
+    <% end %> - Like the Nokia game.</p>
+  </div>
+  <div class="available-game">
+    <p><%= link to: Routes.trivia_path(@conn, :index) do %>
+      Hangman
+    <% end %> - Word guessing game.</p>
+  </div>
+  <div class="available-game">
+    <p><%= link to: Routes.trivia_path(@conn, :index) do %>
+      Battleship
+    <% end %> - Sink each others battleships.</p>
+  </div>-->
+</div>
