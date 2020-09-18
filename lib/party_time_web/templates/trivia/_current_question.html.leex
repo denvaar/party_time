@@ -1,0 +1,51 @@
+<div class="question-area">
+  <div class="header">
+    <div><%= @selected_category %></div>
+    <div><%= @current_question.value %></div>
+  </div>
+  <div class="question">
+    <h3><%= @current_question.prompt %></h3>
+  </div>
+  <%= if @buzzed_in_user_id do %>
+    <div class="game-event-message">
+      <div class="game-event-header">
+        <div style="display: flex; align-items: center;">
+          <div class="player-picture" style="margin-right: 10px;">
+            <img
+              referrerpolicy="no-referrer"
+              src="<%= player(@game.players, @buzzed_in_user_id).avatar_url %>"
+              />
+          </div>
+          <%= if @buzzed_in_user_id == @current_user_id do %>
+            <div>Type your answer below!</div>
+          <% else %>
+            <div><%= player(@game.players, @buzzed_in_user_id).display_name %> is answering...</div>
+          <% end %>
+        </div>
+        <%= if @buzz_in_seconds_remaining != nil do %>
+          <div class="countdown"><%= @buzz_in_seconds_remaining %></div>
+        <% end %>
+      </div>
+      <div class="game-event-body">
+        <%= if @buzzed_in_user_id == @current_user_id do %>
+          <%= form_for :player_answer, "#", [phx_change: "typing-answer", phx_submit: :"submit-answer"], fn f -> %>
+            <div style="display:flex">
+              <input type="text" autofocus name="player_answer[answer]" value="<%= @player_answer %>" class="<%= answer_status_css_class(@buzzed_in_user_id, nil) %>" />
+              <%= submit "Submit" %>
+            </div>
+          <% end %>
+        <% else %>
+          <input type="text" value="<%= @player_answer %>" class="<%= answer_status_css_class(@buzzed_in_user_id, nil) %>" readonly />
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="buzzer-area">
+      <%= if player(@game.players, @current_user_id).able_to_answer do %>
+        <button class="buzzer" phx-click="buzz-in">Answer</button>
+      <% else %>
+        <button class="buzzer" disabled>Answer</button>
+      <% end %>
+    </div>
+  <% end %>
+</div>

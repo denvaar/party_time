@@ -32,7 +32,9 @@ defmodule PartyTimeWeb.PlayTriviaLive do
          game_id: game_id,
          game_status: :lobby,
          is_host: is_host,
-         current_user_id: current_user.id
+         current_user_id: current_user.id,
+         selected_category: nil,
+         current_question: nil
        )}
     else
       {:ok, assign(socket, game: nil, is_host: false, game_status: :lobby)}
@@ -86,11 +88,29 @@ defmodule PartyTimeWeb.PlayTriviaLive do
         %{"player_answer" => %{"answer" => player_answer}},
         socket
       ) do
-    {:noreply, assign(socket, player_answer: player_answer)}
+    GameServer.type_answer(String.to_atom(socket.assigns.game_id), player_answer)
+    {:noreply, socket}
   end
 
   def handle_event("submit-answer", %{"player_answer" => %{"answer" => player_answer}}, socket) do
     GameServer.submit_answer(String.to_atom(socket.assigns.game_id), player_answer)
+    {:noreply, socket}
+  end
+
+  def handle_event("select-category", %{"selected_category" => selected_category}, socket) do
+    IO.inspect(selected_category)
+    {:noreply, assign(socket, selected_category: selected_category)}
+  end
+
+  def handle_event(
+        "select-question",
+        %{"selected_question" => id, "selected_category" => category_name},
+        socket
+      ) do
+    socket.assigns.game_id
+    |> String.to_atom()
+    |> GameServer.pick_question(id, category_name)
+
     {:noreply, socket}
   end
 

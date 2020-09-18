@@ -26,8 +26,8 @@ defmodule PartyTime.Games.Trivia.GameServer do
     GenServer.cast(game_id, {:set_status, status})
   end
 
-  def pick_question(game_id, question_id) do
-    GenServer.cast(game_id, {:pick_question, question_id})
+  def pick_question(game_id, question_id, category_name) do
+    GenServer.cast(game_id, {:pick_question, question_id, category_name})
   end
 
   def buzz_in(game_id, user_id) do
@@ -36,6 +36,10 @@ defmodule PartyTime.Games.Trivia.GameServer do
 
   def submit_answer(game_id, player_answer) do
     GenServer.cast(game_id, {:submit_answer, player_answer})
+  end
+
+  def type_answer(game_id, player_answer) do
+    GenServer.cast(game_id, {:type_answer, player_answer})
   end
 
   def judge_answer(game_id, verdict) do
@@ -53,7 +57,78 @@ defmodule PartyTime.Games.Trivia.GameServer do
     state =
       %{
         game_id: game_id,
-        game: %Game{},
+        game: %Game{
+          categories: [
+            %PartyTime.Games.Trivia.Category{
+              name: "NASA Space Voyages Gone Wrong",
+              questions: [
+                %PartyTime.Games.Trivia.Question{
+                  prompt: "asdfasdf",
+                  expected_answer: "asdfasdf",
+                  value: 200,
+                  id: :"1"
+                },
+                %PartyTime.Games.Trivia.Question{
+                  prompt: "aasdfasdfsdfasdf",
+                  expected_answer: "asdsdfiasdfasfasdf",
+                  value: 400,
+                  id: :"2"
+                }
+              ]
+            },
+            %PartyTime.Games.Trivia.Category{
+              name: "asdfas asdf asdf asdf asdf",
+              questions: [
+                %PartyTime.Games.Trivia.Question{
+                  prompt: "asdfa asdf asdfsdf",
+                  expected_answer: "asdfasdf",
+                  value: 200,
+                  id: :asdfasfd1
+                },
+                %PartyTime.Games.Trivia.Question{
+                  prompt: "aasasd asdf asdf asdf dfasdfsdfasdf",
+                  expected_answer: "asdsdfiasdfaasdfasdf afsd asdf sfasdf",
+                  value: 400,
+                  id: :"2wwwewe"
+                }
+              ]
+            },
+            %PartyTime.Games.Trivia.Category{
+              name: "asfd asaaa aa  a a a sdfa",
+              questions: [
+                %PartyTime.Games.Trivia.Question{
+                  prompt: "asdfa asdf asdfsdf",
+                  expected_answer: "asdfasdf",
+                  value: 200,
+                  id: :asdfasfdsssd1
+                },
+                %PartyTime.Games.Trivia.Question{
+                  prompt: "aasasd asdf asdf asdf dfasdfsdfasdf",
+                  expected_answer: "asdsdfiasdfaasdfasdf afsd asdf sfasdf",
+                  value: 400,
+                  id: :"2wwwewasdfasdfe"
+                }
+              ]
+            },
+            %PartyTime.Games.Trivia.Category{
+              name: "World Geography",
+              questions: [
+                %PartyTime.Games.Trivia.Question{
+                  prompt: "asdfasdasdf asdf asdf f",
+                  expected_answer: "asdfasdf",
+                  value: 200,
+                  id: :"12"
+                },
+                %PartyTime.Games.Trivia.Question{
+                  prompt: "aasdfasdfsdfaasdf asdf asdf asdfsdf",
+                  expected_answer: "asdsdfiasdfasfasdf",
+                  value: 400,
+                  id: :"22"
+                }
+              ]
+            }
+          ]
+        },
         timer_ref: nil
       }
       |> Map.merge(initial_meta())
@@ -90,16 +165,16 @@ defmodule PartyTime.Games.Trivia.GameServer do
     {:noreply, %{state | game: game}}
   end
 
-  def handle_cast({:pick_question, question_id}, state) do
+  def handle_cast({:pick_question, question_id, category_name}, state) do
     question = Game.pick_question(state.game, String.to_atom(question_id))
 
     PartyTimeWeb.Endpoint.broadcast!(
       game_updates_topic(state.game_id),
       "game_meta_update",
-      %{current_question: question}
+      %{current_question: question, selected_category: category_name}
     )
 
-    {:noreply, %{state | current_question: question}}
+    {:noreply, %{state | current_question: question, selected_category: category_name}}
   end
 
   def handle_cast({:judge_answer, "correct"}, state) do
@@ -190,10 +265,21 @@ defmodule PartyTime.Games.Trivia.GameServer do
     PartyTimeWeb.Endpoint.broadcast!(
       game_meta_topic(state.game_id),
       "game_meta_update",
+      %{player_answer: player_answer, buzz_in_seconds_remaining: nil}
+    )
+
+    {:noreply,
+     %{state | timer_ref: nil, buzz_in_seconds_remaining: nil, player_answer: player_answer}}
+  end
+
+  def handle_cast({:type_answer, player_answer}, state) do
+    PartyTimeWeb.Endpoint.broadcast!(
+      game_meta_topic(state.game_id),
+      "game_meta_update",
       %{player_answer: player_answer}
     )
 
-    {:noreply, %{state | timer_ref: nil, player_answer: player_answer}}
+    {:noreply, %{state | player_answer: player_answer}}
   end
 
   def handle_cast({:buzz_in, user_id}, state) do
@@ -350,7 +436,7 @@ defmodule PartyTime.Games.Trivia.GameServer do
     |> Enum.reduce(game, fn {_id, user}, game ->
       Game.add_player(
         game,
-        {user.id, "#{user.given_name} #{String.first(user.family_name)}. (#{user.email})"}
+        {user.id, "#{user.given_name} #{String.first(user.family_name)}.", user.picture}
       )
     end)
   end
@@ -372,6 +458,7 @@ defmodule PartyTime.Games.Trivia.GameServer do
   defp initial_meta() do
     %{
       current_question: nil,
+      selected_category: nil,
       player_answer: nil,
       buzz_in_seconds_remaining: nil,
       buzzed_in_user_id: nil,

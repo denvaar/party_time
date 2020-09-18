@@ -5,6 +5,7 @@ defmodule PartyTime.Games.Trivia.Player do
 
   @type t :: %__MODULE__{
           user_id: pos_integer(),
+          avatar_url: String.t(),
           display_name: String.t(),
           able_to_answer: boolean(),
           is_in_control: boolean(),
@@ -15,6 +16,7 @@ defmodule PartyTime.Games.Trivia.Player do
   defstruct [
     :user_id,
     :display_name,
+    :avatar_url,
     able_to_answer: true,
     is_in_control: false,
     score: 0

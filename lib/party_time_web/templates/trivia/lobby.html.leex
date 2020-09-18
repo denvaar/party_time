@@ -1,4 +1,3 @@
-<h1>Trivia</h1>
 <%= if @is_host do %>
   <p>Ok, now share this link with others. Once you have enough players, you can start the game.</p>
 
@@ -7,23 +6,45 @@
   <% else %>
     <button phx-click="start-game" disabled>Start Game</button>
   <% end %>
+  <%= if @game do %>
+    <h3>Players</h3>
+    <%= if length(@game.players) == 0 do %>
+      <i>Nobody has joined yet</i>
+    <% end %>
+    <ul>
+      <%= for player <- @game.players do %>
+        <li>
+          <%= player.display_name %>
+          <%= if player.user_id == @current_user_id do %>
+            (You)
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
 <% else %>
-  <p><i>Waiting for the host to start game...</i></p>
+  <%= if @game do %>
+    <%= if length(@game.players) == 0 do %>
+      <i>Nobody has joined yet</i>
+    <% end %>
+
+    <div class="player-list">
+      <%= for player <- @game.players do %>
+        <div class="player">
+          <div class="profile-image-container">
+            <img src="<%= player.avatar_url %>" />
+          </div>
+          <%= if player.user_id == @current_user_id do %>
+            <p>You</p>
+          <% else %>
+            <p><%= player.display_name %></p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+  <p class="status">
+    <i>Waiting for game to begin...</i>
+  </p>
 <% end %>
 
-<%= if @game do %>
-  <h3>Players</h3>
-  <%= if length(@game.players) == 0 do %>
-    <i>Nobody has joined yet.</i>
-  <% end %>
-  <ul>
-    <%= for player <- @game.players do %>
-      <li>
-        <%= player.display_name %>
-        <%= if player.user_id == @current_user_id do %>
-          (You)
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
-<% end %>

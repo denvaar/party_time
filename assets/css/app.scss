@@ -3,7 +3,16 @@
 
 body {
     margin: 0;
+    width: 100vw;
     height: 100vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+html {
+    position: fixed;
+    height: 100%;
+    overflow: hidden;
 }
 
 /* Alerts and form errors */
@@ -82,9 +91,6 @@ nav {
     margin-right: 0.5rem;
 }
 
-.available-game {
-}
-
 .separator {
     display: flex;
     align-items: center;
@@ -107,87 +113,12 @@ nav {
     text-align: center;
 }
 
-.swiper-viewport {
-    background: #2f2f2f;
-}
-
-.swiper-items {
+.player {
     display: flex;
-    overflow-x: scroll;
-
-    /* prevent accidentally going back or triggering other swipe events */
-    overscroll-behavior: contain;
-
-    /* hide scroll bar */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-
-    /* momentum scroll on iOS */
-    -webkit-overflow-scrolling: touch;
-
-    /* disable vertical scroll for touch */
-    touch-action: pan-x;
-
-    /* scroll snapping */
-    scroll-snap-type: x mandatory;
-}
-
-/* hide scroll bar */
-.swiper-items::-webkit-scrollbar {
-    display: none;
-}
-
-.swiper-item {
-    height: 100px;
-    width: 100%;
-    flex-shrink: 0;
-
-    /* scroll snapping */
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-}
-
-.swiper-indicators,
-.swiper-items {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 0;
-}
-
-.swiper-items {
-}
-
-.swiper-item {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-
-    a {
-        color: #e4947b;
-    }
-    h3 {
-        color: #fff;
-    }
+    padding: 5px;
 }
 
-.swiper-indicators {
-    display: flex;
-    justify-content: center;
-}
-
-.swiper-indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: #fff;
-    transition: width 0.5s linear;
-}
-
-.swiper-indicator:not(:last-child) {
-    margin-right: 16px;
-}
-
-.swiper-indicator.active {
-    background-color: #23e2ad;
+.player p {
+    margin-left: 20px;
 }

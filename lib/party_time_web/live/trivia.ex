@@ -38,6 +38,7 @@ defmodule PartyTimeWeb.TriviaLive do
         assign(socket,
           game_id: game_id,
           game: GameServer.get_state(game_id),
+          active_tab: :category,
           game_status: :setup,
           adding_question_category: nil
         )
@@ -78,7 +79,7 @@ defmodule PartyTimeWeb.TriviaLive do
         String.to_integer(value)
       )
 
-    {:noreply, assign(socket, adding_question_category: nil, game: game)}
+    {:noreply, assign(socket, game: game)}
   end
 
   def handle_event("next", _params, socket) do
@@ -90,6 +91,25 @@ defmodule PartyTimeWeb.TriviaLive do
       )
 
     {:noreply, push_redirect(socket, to: path)}
+  end
+
+  def handle_event("set-tab", %{"value" => value, "active_category" => category}, socket) do
+    {:noreply,
+     assign(socket, active_tab: String.to_atom(value), adding_question_category: category)}
+  end
+
+  def handle_event("set-tab", %{"value" => value}, socket) do
+    {:noreply, assign(socket, active_tab: String.to_atom(value))}
+  end
+
+  def handle_event("swipe", %{"category" => category}, socket) do
+    IO.inspect(category)
+
+    if category == socket.assigns.adding_question_category do
+      {:noreply, socket}
+    else
+      {:noreply, assign(socket, adding_question_category: category)}
+    end
   end
 
   defp new_game(game_id) do
