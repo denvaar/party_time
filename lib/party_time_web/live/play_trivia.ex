@@ -99,7 +99,8 @@ defmodule PartyTimeWeb.PlayTriviaLive do
 
   def handle_event("select-category", %{"selected_category" => selected_category}, socket) do
     IO.inspect(selected_category)
-    {:noreply, assign(socket, selected_category: selected_category)}
+    GameServer.view_category(String.to_atom(socket.assigns.game_id), selected_category)
+    {:noreply, socket}
   end
 
   def handle_event(

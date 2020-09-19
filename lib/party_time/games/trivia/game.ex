@@ -150,6 +150,17 @@ defmodule PartyTime.Games.Trivia.Game do
     |> Map.put(:players, players)
   end
 
+  def make_everyone_able_to_answer(state) do
+    players =
+      state.players
+      |> Enum.map(fn player ->
+        %{player | able_to_answer: true}
+      end)
+
+    state
+    |> Map.put(:players, players)
+  end
+
   @doc """
   A few things happen when a player is awarded a correct answer
 

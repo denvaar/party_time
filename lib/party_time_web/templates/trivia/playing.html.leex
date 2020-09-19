@@ -13,7 +13,6 @@
     <% end %>
   <% end %>
 <% else %>
-  <!--<p><%= player(@game.players, @current_user_id).score %></p>-->
   <div class="wave-backdrop">
     <%= if @current_question do %>
       <%= render @view_module, "_current_question.html", assigns %>

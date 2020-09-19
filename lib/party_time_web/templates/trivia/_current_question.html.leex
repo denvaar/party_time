@@ -3,7 +3,7 @@
     <div><%= @selected_category %></div>
     <div><%= @current_question.value %></div>
   </div>
-  <div class="question">
+  <div class='question slide-in-first <%= if @buzzed_in_user_id, do: "adjust", else: "" %>'>
     <h3><%= @current_question.prompt %></h3>
   </div>
   <%= if @buzzed_in_user_id do %>
@@ -40,12 +40,12 @@
       </div>
     </div>
   <% else %>
-    <div class="buzzer-area">
-      <%= if player(@game.players, @current_user_id).able_to_answer do %>
-        <button class="buzzer" phx-click="buzz-in">Answer</button>
-      <% else %>
-        <button class="buzzer" disabled>Answer</button>
-      <% end %>
-    </div>
   <% end %>
+  <div class='buzzer-area <%= if @buzzed_in_user_id, do: "hidden", else: "" %> ' id="answer-button-container" phx-hook="answerButtonContainer">
+    <%= if player(@game.players, @current_user_id).able_to_answer do %>
+      <button class="buzzer" phx-click="buzz-in">Answer</button>
+    <% else %>
+      <button class="buzzer" disabled>Answer</button>
+    <% end %>
+  </div>
 </div>

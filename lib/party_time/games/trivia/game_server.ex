@@ -30,6 +30,10 @@ defmodule PartyTime.Games.Trivia.GameServer do
     GenServer.cast(game_id, {:pick_question, question_id, category_name})
   end
 
+  def view_category(game_id, category_name) do
+    GenServer.cast(game_id, {:view_category, category_name})
+  end
+
   def buzz_in(game_id, user_id) do
     GenServer.cast(game_id, {:buzz_in, user_id})
   end
@@ -165,8 +169,25 @@ defmodule PartyTime.Games.Trivia.GameServer do
     {:noreply, %{state | game: game}}
   end
 
+  def handle_cast({:view_category, category_name}, state) do
+    PartyTimeWeb.Endpoint.broadcast!(
+      game_updates_topic(state.game_id),
+      "game_meta_update",
+      %{selected_category: category_name}
+    )
+
+    {:noreply, %{state | selected_category: category_name}}
+  end
+
   def handle_cast({:pick_question, question_id, category_name}, state) do
     question = Game.pick_question(state.game, String.to_atom(question_id))
+    game = Game.make_everyone_able_to_answer(state.game)
+
+    PartyTimeWeb.Endpoint.broadcast!(
+      game_updates_topic(state.game_id),
+      "game_state_update",
+      game
+    )
 
     PartyTimeWeb.Endpoint.broadcast!(
       game_updates_topic(state.game_id),
@@ -174,7 +195,8 @@ defmodule PartyTime.Games.Trivia.GameServer do
       %{current_question: question, selected_category: category_name}
     )
 
-    {:noreply, %{state | current_question: question, selected_category: category_name}}
+    {:noreply,
+     %{state | game: game, current_question: question, selected_category: category_name}}
   end
 
   def handle_cast({:judge_answer, "correct"}, state) do

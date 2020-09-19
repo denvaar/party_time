@@ -24,27 +24,41 @@
   <% end %>
 <% else %>
   <%= if @game do %>
-    <%= if length(@game.players) == 0 do %>
-      <i>Nobody has joined yet</i>
-    <% end %>
+    <h1 class="block-effect" style="--td: 1s;">
+      <div class="block-reveal" style="--bc: #27daa4; --d: 0.1s;">Hello!</div>
+      <div class="block-reveal" style="--bc: #5340bf; --d: 0.5s;">
+        Game starting soon
+      </div>
+    </h1>
 
-    <div class="player-list">
-      <%= for player <- @game.players do %>
-        <div class="player">
-          <div class="profile-image-container">
-            <img src="<%= player.avatar_url %>" />
+    <ul style="display:none" id="lobby-players" phx-hook="lobbyPlayers">
+      <%= for {player, index} <- lobby_players(@game.players) do %>
+        <li
+          data-playername="<%= player.display_name %>"
+          data-playerid="<%= player.user_id %>"
+          data-avatarurl="<%= player.avatar_url %>"></li>
+      <% end %>
+    </ul>
+
+    <div id="player-list" class="lobby-players" phx-update="ignore">
+      <div id="nextplayer" style="--animation-order: <%= length(@game.players) + 10 %>;" class="lobby-player empty">
+        <div class="player-picture item">
+          <div></div>
+        </div>
+        <div class="item">Who's next?</div>
+      </div>
+      <%= for {player, index} <- lobby_players(@game.players) do %>
+        <div id="id-<%= player.user_id %>" style="--animation-order: <%= index %>;" class="lobby-player">
+          <div class="player-picture item">
+            <img
+              referrerpolicy="no-referrer"
+              src="<%= player.avatar_url %>"
+              />
           </div>
-          <%= if player.user_id == @current_user_id do %>
-            <p>You</p>
-          <% else %>
-            <p><%= player.display_name %></p>
-          <% end %>
+          <div class="item"><%= player.display_name %></div>
         </div>
       <% end %>
     </div>
   <% end %>
-  <p class="status">
-    <i>Waiting for game to begin...</i>
-  </p>
 <% end %>
 

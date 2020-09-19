@@ -1,6 +1,11 @@
 defmodule PartyTimeWeb.TriviaView do
   use PartyTimeWeb, :view
 
+  def lobby_players(players) do
+    players
+    |> Enum.zip(length(players)..1)
+  end
+
   def player_has_control?(game, user_id) do
     game.players
     |> Enum.any?(fn player ->
