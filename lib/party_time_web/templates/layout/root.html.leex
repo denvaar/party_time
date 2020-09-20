@@ -13,28 +13,28 @@
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </head>
   <body>
-    <%= if @conn.assigns.current_user do %>
-      <header>
+    <!-- <%= if @conn.assigns.current_user do %>
+        <header>
         <section class="container">
-          <nav role="navigation">
-            <div>
-              <span>
-                <%= link "Party Time", to: Routes.page_path(@conn, :index) %>
-              </span>
-              <%= if String.match?(@conn.request_path, ~r/\/games\//) do %>
-                <span>&gt;</span>
-                <span>
-                  <%= String.capitalize(Enum.at(String.split(@conn.request_path, "/"), 2)) %>
-                </span>
-              <% end %>
-            </div>
-            <div class="profile-image-container">
-              <img referrerpolicy="no-referrer" src="<%= @conn.assigns.current_user.picture %>">
-            </div>
-          </nav>
+        <nav role="navigation">
+        <div>
+        <span>
+        <%= link "Party Time", to: Routes.page_path(@conn, :index) %>
+        </span>
+        <%= if String.match?(@conn.request_path, ~r/\/games\//) do %>
+          <span>&gt;</span>
+          <span>
+          <%= String.capitalize(Enum.at(String.split(@conn.request_path, "/"), 2)) %>
+          </span>
+        <% end %>
+        </div>
+        <div class="profile-image-container">
+        <img referrerpolicy="no-referrer" src="<%= @conn.assigns.current_user.picture %>">
+        </div>
+        </nav>
         </section>
-      </header>
-    <% end %>
-    <%= @inner_content %>
+        </header>
+      <% end %>-->
+      <%= @inner_content %>
   </body>
 </html>

@@ -32,10 +32,10 @@ defmodule PartyTimeWeb.TriviaView do
     end)
   end
 
-  def answer_status_css_class(nil, nil), do: "unanswered"
-  def answer_status_css_class(_buzzed_in_user_id, true), do: "correct-answer"
-  def answer_status_css_class(_buzzed_in_user_id, false), do: "incorrect-answer"
-  def answer_status_css_class(_buzzed_in_user_id, nil), do: "pending-answer"
+  def answer_status_css_class(nil), do: "unanswered"
+  def answer_status_css_class(:pending), do: "pending-answer"
+  def answer_status_css_class(:incorrect), do: "incorrect-answer"
+  def answer_status_css_class(:correct), do: "correct-answer"
 
   def category_questions(categories, category_name) do
     categories

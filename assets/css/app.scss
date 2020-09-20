@@ -44,13 +44,6 @@ html {
     display: none;
 }
 
-.party-background {
-    background: linear-gradient(#6039ff, #20a7ff);
-    height: 100vh;
-    background-size: cover;
-    background-repeat: no-repeat;
-}
-
 nav {
     display: flex;
     flex-direction: row;
@@ -70,19 +63,6 @@ nav {
 .profile-image-container img {
     width: auto;
     height: 100%;
-}
-
-.login-container {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-}
-
-.login-container a {
-    color: #ffa4c6;
-    font-size: 15px;
 }
 
 .margin-container {
@@ -121,4 +101,168 @@ nav {
 
 .player p {
     margin-left: 20px;
+}
+
+/* Sign in */
+
+$innerWaveColor: #cbcbcb; //#242424;
+$outterWaveColor: #ececec; //#373946;
+$linkColor: blue;
+
+.party-background {
+    background: #fff; //linear-gradient(#6039ff, #20a7ff);
+    height: 100vh;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.login-container {
+    z-index: 3;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+
+    border: 2px solid #000;
+    border-radius: 6px;
+
+    box-shadow: 10px 10px;
+    padding: 20px;
+    background-color: #ccc;
+}
+
+.login-container a {
+    color: $linkColor;
+    font-size: 15px;
+    text-decoration: none;
+    text-shadow: 1px 1px #43ff61;
+}
+
+.waves {
+    --wavefill1: #{$innerWaveColor};
+    --wavefill2: #{$outterWaveColor};
+
+    position: absolute;
+    width: 102%;
+
+    &.w1 {
+        &.top {
+            top: 50px;
+
+            @media (min-width: 760px) {
+                top: -40px;
+            }
+        }
+
+        &.bottom {
+            bottom: 50px;
+
+            @media (min-width: 760px) {
+                bottom: -60px;
+            }
+        }
+    }
+
+    &.w2 {
+        &.top {
+            top: 110px;
+
+            @media (min-width: 760px) {
+                top: 0;
+            }
+        }
+
+        &.bottom {
+            bottom: 160px;
+
+            @media (min-width: 760px) {
+                bottom: 0;
+            }
+        }
+    }
+}
+
+.filler {
+    position: absolute;
+    width: 100%;
+
+    &.f1 {
+        background: $innerWaveColor;
+        height: 51px;
+
+        @media (min-width: 760px) {
+            display: none;
+        }
+
+        &.bottom {
+            bottom: 0;
+        }
+
+        &.top {
+            top: 0;
+        }
+    }
+
+    &.f2 {
+        background: $outterWaveColor;
+        height: 111px;
+
+        @media (min-width: 760px) {
+            display: none;
+        }
+
+        &.bottom {
+            bottom: 60px;
+        }
+
+        &.top {
+            top: 0;
+        }
+    }
+}
+
+/* Home page */
+
+.join-container {
+    margin-bottom: 100px;
+    margin-left: 3rem;
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .error-message {
+        animation: fadeIn 0.5s forwards;
+        color: #be1e1e;
+        opacity: 0;
+    }
+
+    input {
+        padding: 15px;
+        max-width: 220px;
+        font-size: 2rem;
+
+        border: 1px solid #999;
+        border-radius: 3px;
+    }
+
+    button {
+        min-height: 56px;
+        margin-left: 10px;
+        background-color: royalblue;
+        color: #fff;
+        font-size: 2rem;
+
+        min-width: 90px;
+        padding-left: 10px;
+        padding-right: 10px;
+        border: 1px solid royalblue;
+        border-radius: 3px;
+    }
 }

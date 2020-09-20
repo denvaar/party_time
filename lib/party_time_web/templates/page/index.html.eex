@@ -1,23 +1,30 @@
-<div class="margin-container">
-  <h3>Games</h3>
-  <div class="available-game">
-    <p><%= link to: Routes.trivia_path(@conn, :index) do %>
-      Trivia
-    <% end %> - It's pretty much Jeopardy.</p>
+<div style="position:sticky;">
+  <svg style="position:absolute;top:0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#cbcbcb" fill-opacity="1" d="M0,64L24,85.3C48,107,96,149,144,181.3C192,213,240,235,288,224C336,213,384,171,432,149.3C480,128,528,128,576,133.3C624,139,672,149,720,160C768,171,816,181,864,197.3C912,213,960,235,1008,245.3C1056,256,1104,256,1152,229.3C1200,203,1248,149,1296,128C1344,107,1392,117,1416,122.7L1440,128L1440,0L1416,0C1392,0,1344,0,1296,0C1248,0,1200,0,1152,0C1104,0,1056,0,1008,0C960,0,912,0,864,0C816,0,768,0,720,0C672,0,624,0,576,0C528,0,480,0,432,0C384,0,336,0,288,0C240,0,192,0,144,0C96,0,48,0,24,0L0,0Z"></path></svg>
+  <div style="background:#ececec;width:100%;height:120px;"></div>
+  <svg style="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#ececec" fill-opacity="1" d="M0,320L40,314.7C80,309,160,299,240,277.3C320,256,400,224,480,202.7C560,181,640,171,720,144C800,117,880,75,960,74.7C1040,75,1120,117,1200,144C1280,171,1360,181,1400,186.7L1440,192L1440,0L1400,0C1360,0,1280,0,1200,0C1120,0,1040,0,960,0C880,0,800,0,720,0C640,0,560,0,480,0C400,0,320,0,240,0C160,0,80,0,40,0L0,0Z"></path></svg>
+</div>
+<div class="join-container">
+  <%= if PartyTime.Accounts.is_host?(@current_user) do %>
+    <div class="available-game">
+      <p><%= link to: Routes.trivia_path(@conn, :index) do %>
+        Trivia
+      <% end %></p>
+    </div>
+  <% end %>
+  <h2>Join with game code</h2>
+  <div class="form-group">
+    <%= form_for @conn, Routes.page_path(@conn, :create), fn f -> %>
+      <div style="display:flex;margin-right:1rem;flex-wrap:wrap;">
+        <%= if assigns[:invalid_game_code] do %>
+          <%= text_input f, :game_code, placeholder: "Game code", class: "error" %>
+        <% else %>
+          <%= text_input f, :game_code, placeholder: "Game code" %>
+        <% end %>
+        <%= submit "Join" %>
+      </div>
+      <%= if assigns[:invalid_game_code] do %>
+        <p class="error-message"><%= @invalid_game_code %></p>
+      <% end %>
+    <% end %>
   </div>
-  <!--<div class="available-game">
-    <p><%= link to: Routes.trivia_path(@conn, :index) do %>
-      Snake
-    <% end %> - Like the Nokia game.</p>
-  </div>
-  <div class="available-game">
-    <p><%= link to: Routes.trivia_path(@conn, :index) do %>
-      Hangman
-    <% end %> - Word guessing game.</p>
-  </div>
-  <div class="available-game">
-    <p><%= link to: Routes.trivia_path(@conn, :index) do %>
-      Battleship
-    <% end %> - Sink each others battleships.</p>
-  </div>-->
 </div>

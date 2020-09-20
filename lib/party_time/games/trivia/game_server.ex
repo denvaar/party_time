@@ -133,7 +133,8 @@ defmodule PartyTime.Games.Trivia.GameServer do
             }
           ]
         },
-        timer_ref: nil
+        timer_ref: nil,
+        question_timeout_timer_ref: nil
       }
       |> Map.merge(initial_meta())
 
@@ -195,34 +196,32 @@ defmodule PartyTime.Games.Trivia.GameServer do
       %{current_question: question, selected_category: category_name}
     )
 
+    question_timeout_timer_ref =
+      Process.send_after(
+        self(),
+        {:question_timeout},
+        10_000
+      )
+
     {:noreply,
-     %{state | game: game, current_question: question, selected_category: category_name}}
+     %{
+       state
+       | game: game,
+         question_timeout_timer_ref: question_timeout_timer_ref,
+         current_question: question,
+         selected_category: category_name
+     }}
   end
 
   def handle_cast({:judge_answer, "correct"}, state) do
-    game =
-      Game.correct_answer(
-        state.game,
-        state.buzzed_in_user_id,
-        state.current_question.value,
-        state.current_question.id
-      )
-
-    PartyTimeWeb.Endpoint.broadcast!(
-      game_updates_topic(state.game_id),
-      "game_state_update",
-      game
+    Process.send_after(
+      self(),
+      {:judge_answer, "correct"},
+      5_000
     )
 
-    meta_state = %{
-      current_question: nil,
-      buzz_in_seconds_remaining: nil,
-      buzzed_in_user_id: nil,
-      player_answer: nil,
-      question_answer_history: [
-        {state.buzzed_in_user_id, state.player_answer, true} | state.question_answer_history
-      ]
-    }
+    # set answer status as correct
+    meta_state = %{answer_status: :correct}
 
     PartyTimeWeb.Endpoint.broadcast!(
       game_meta_topic(state.game_id),
@@ -230,45 +229,18 @@ defmodule PartyTime.Games.Trivia.GameServer do
       meta_state
     )
 
-    {:noreply, %{state | game: game} |> Map.merge(meta_state)}
+    {:noreply, Map.merge(state, meta_state)}
   end
 
   def handle_cast({:judge_answer, "incorrect"}, state) do
-    game =
-      Game.incorrect_answer(
-        state.game,
-        state.buzzed_in_user_id,
-        state.current_question.value
-      )
-
-    all_answered? =
-      game.players
-      |> Enum.all?(fn player -> player.able_to_answer == false end)
-
-    game =
-      if all_answered? do
-        Game.mark_question_unavailable(game, state.current_question.id)
-      else
-        game
-      end
-
-    current_question = if all_answered?, do: nil, else: state.current_question
-
-    meta_state = %{
-      current_question: current_question,
-      buzz_in_seconds_remaining: nil,
-      buzzed_in_user_id: nil,
-      player_answer: nil,
-      question_answer_history: [
-        {state.buzzed_in_user_id, state.player_answer, false} | state.question_answer_history
-      ]
-    }
-
-    PartyTimeWeb.Endpoint.broadcast!(
-      game_updates_topic(state.game_id),
-      "game_state_update",
-      game
+    Process.send_after(
+      self(),
+      {:judge_answer, "incorrect"},
+      5_000
     )
+
+    # set answer status as incorrect
+    meta_state = %{answer_status: :incorrect}
 
     PartyTimeWeb.Endpoint.broadcast!(
       game_meta_topic(state.game_id),
@@ -276,7 +248,7 @@ defmodule PartyTime.Games.Trivia.GameServer do
       meta_state
     )
 
-    {:noreply, %{state | game: game} |> Map.merge(meta_state)}
+    {:noreply, Map.merge(state, meta_state)}
   end
 
   def handle_cast({:submit_answer, player_answer}, state) do
@@ -287,11 +259,17 @@ defmodule PartyTime.Games.Trivia.GameServer do
     PartyTimeWeb.Endpoint.broadcast!(
       game_meta_topic(state.game_id),
       "game_meta_update",
-      %{player_answer: player_answer, buzz_in_seconds_remaining: nil}
+      %{player_answer: player_answer, buzz_in_seconds_remaining: nil, answer_status: :pending}
     )
 
     {:noreply,
-     %{state | timer_ref: nil, buzz_in_seconds_remaining: nil, player_answer: player_answer}}
+     %{
+       state
+       | timer_ref: nil,
+         buzz_in_seconds_remaining: nil,
+         player_answer: player_answer,
+         answer_status: :pending
+     }}
   end
 
   def handle_cast({:type_answer, player_answer}, state) do
@@ -305,6 +283,10 @@ defmodule PartyTime.Games.Trivia.GameServer do
   end
 
   def handle_cast({:buzz_in, user_id}, state) do
+    if state.question_timeout_timer_ref do
+      Process.cancel_timer(state.question_timeout_timer_ref)
+    end
+
     PartyTimeWeb.Endpoint.broadcast!(
       game_meta_topic(state.game_id),
       "game_meta_update",
@@ -395,7 +377,16 @@ defmodule PartyTime.Games.Trivia.GameServer do
       meta_state
     )
 
-    {:noreply, %{state | timer_ref: nil, game: game} |> Map.merge(meta_state)}
+    question_timeout_timer_ref =
+      Process.send_after(
+        self(),
+        {:question_timeout},
+        7_000
+      )
+
+    {:noreply,
+     %{state | question_timeout_timer_ref: question_timeout_timer_ref, timer_ref: nil, game: game}
+     |> Map.merge(meta_state)}
   end
 
   def handle_info({:tick, seconds_remaining}, state) do
@@ -413,6 +404,119 @@ defmodule PartyTime.Games.Trivia.GameServer do
       )
 
     {:noreply, %{state | timer_ref: timer_ref, buzz_in_seconds_remaining: seconds_remaining}}
+  end
+
+  def handle_info({:question_timeout}, state) do
+    game = Game.mark_question_unavailable(state.game, state.current_question.id)
+
+    PartyTimeWeb.Endpoint.broadcast!(
+      game_updates_topic(state.game_id),
+      "game_state_update",
+      game
+    )
+
+    PartyTimeWeb.Endpoint.broadcast!(
+      game_meta_topic(state.game_id),
+      "game_meta_update",
+      %{current_question: nil}
+    )
+
+    {:noreply, %{state | current_question: nil, question_timeout_timer_ref: nil, game: game}}
+  end
+
+  def handle_info({:judge_answer, "correct"}, state) do
+    game =
+      Game.correct_answer(
+        state.game,
+        state.buzzed_in_user_id,
+        state.current_question.value,
+        state.current_question.id
+      )
+
+    PartyTimeWeb.Endpoint.broadcast!(
+      game_updates_topic(state.game_id),
+      "game_state_update",
+      game
+    )
+
+    meta_state = %{
+      answer_status: nil,
+      current_question: nil,
+      buzz_in_seconds_remaining: nil,
+      buzzed_in_user_id: nil,
+      player_answer: nil,
+      question_answer_history: [
+        {state.buzzed_in_user_id, state.player_answer, true} | state.question_answer_history
+      ]
+    }
+
+    PartyTimeWeb.Endpoint.broadcast!(
+      game_meta_topic(state.game_id),
+      "game_meta_update",
+      meta_state
+    )
+
+    {:noreply, %{state | game: game} |> Map.merge(meta_state)}
+  end
+
+  def handle_info({:judge_answer, "incorrect"}, state) do
+    game =
+      Game.incorrect_answer(
+        state.game,
+        state.buzzed_in_user_id,
+        state.current_question.value
+      )
+
+    all_answered? =
+      game.players
+      |> Enum.all?(fn player -> player.able_to_answer == false end)
+
+    game =
+      if all_answered? do
+        Game.mark_question_unavailable(game, state.current_question.id)
+      else
+        game
+      end
+
+    current_question = if all_answered?, do: nil, else: state.current_question
+
+    meta_state = %{
+      answer_status: nil,
+      current_question: current_question,
+      buzz_in_seconds_remaining: nil,
+      buzzed_in_user_id: nil,
+      player_answer: nil,
+      question_answer_history: [
+        {state.buzzed_in_user_id, state.player_answer, false} | state.question_answer_history
+      ]
+    }
+
+    PartyTimeWeb.Endpoint.broadcast!(
+      game_updates_topic(state.game_id),
+      "game_state_update",
+      game
+    )
+
+    PartyTimeWeb.Endpoint.broadcast!(
+      game_meta_topic(state.game_id),
+      "game_meta_update",
+      meta_state
+    )
+
+    question_timeout_timer_ref =
+      if all_answered? do
+        nil
+      else
+        Process.send_after(
+          self(),
+          {:question_timeout},
+          7_000
+        )
+      end
+
+    {:noreply,
+     %{state | game: game, question_timeout_timer_ref: question_timeout_timer_ref}
+     |> Map.merge(meta_state)}
   end
 
   def handle_info(%{event: "presence_diff", payload: %{joins: joins, leaves: leaves}}, state) do
@@ -484,7 +588,8 @@ defmodule PartyTime.Games.Trivia.GameServer do
       player_answer: nil,
       buzz_in_seconds_remaining: nil,
       buzzed_in_user_id: nil,
-      question_answer_history: []
+      question_answer_history: [],
+      answer_status: nil
     }
   end
 end

@@ -11,7 +11,7 @@ body {
 
 .wave-backdrop {
     background-color: #ffffff;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='72' viewBox='0 0 36 72'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%235ca2f7' fill-opacity='0.14'%3E%3Cpath d='M2 6h12L8 18 2 6zm18 36h12l-6 12-6-12z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='72' viewBox='0 0 36 72'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23cccccc' fill-opacity='0.4'%3E%3Cpath d='M2 6h12L8 18 2 6zm18 36h12l-6 12-6-12z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     position: absolute;
     top: 0;
     left: 0;
@@ -25,7 +25,7 @@ body {
 
 @keyframes slideIn {
     from {
-        transform: translateX(400px);
+        transform: translateX(130%);
     }
 
     to {
@@ -33,14 +33,38 @@ body {
     }
 }
 
+@keyframes slideDown {
+    from {
+        transform: translateY(-150%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+.slide-down-first {
+    transform: translateY(-150%);
+    animation: slideDown 0.5s;
+    animation-fill-mode: forwards;
+    animation-delay: 0.5s;
+}
+
+.slide-down-second {
+    transform: translateY(-150%);
+    animation: slideDown 0.7s;
+    animation-fill-mode: forwards;
+    animation-delay: 0.8s;
+}
+
 .slide-in-first {
-    transform: translateX(400px);
+    transform: translateX(130%);
     animation: slideIn 0.5s;
     animation-fill-mode: forwards;
     animation-delay: 1.5s;
 }
 .slide-in-second {
-    transform: translateX(400px);
+    transform: translateX(130%);
     animation: slideIn 0.7s;
     animation-fill-mode: forwards;
     animation-delay: 2.5s;
@@ -113,6 +137,7 @@ body {
                 text-align: center;
 
                 margin: 10px;
+                padding: 10px;
                 width: 80%;
                 height: 100%;
 
@@ -200,17 +225,44 @@ body {
         margin-top: -22px;
 
         .game-event-header {
-            padding: 10px;
+            padding: 13px;
             display: flex;
             justify-content: space-between;
             align-items: center;
 
             .countdown {
-                border: 2px solid royalblue;
-                background: rgb(33, 231, 155);
+                background: #623ec5;
+                color: #fff;
+                text-shadow: 1px 1px #ff45c8;
+
+                width: 30px;
+                height: 30px;
+
                 border-radius: 50%;
-                padding: 6px;
-                text-align: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                font-size: 12px;
+            }
+
+            .bounce {
+                animation: bounce 1s 0s;
+            }
+
+            @keyframes bounce {
+                0% {
+                    transform: scale(0.3);
+                }
+                50% {
+                    transform: scale(1.05);
+                }
+                70% {
+                    transform: scale(0.9);
+                }
+                100% {
+                    transform: scale(1);
+                }
             }
         }
 
@@ -219,7 +271,7 @@ body {
             padding: 10px;
 
             button {
-                border: 2px solid #000;
+                border: 2px solid royalblue;
                 border-radius: 3px;
                 margin-left: 5px;
 
@@ -231,15 +283,17 @@ body {
 
             button:disabled,
             button[disabled] {
-                border-color: #999;
-                color: #999;
+                background: rgb(202, 202, 202);
+                border: 2px solid rgb(202, 202, 202);
+                color: gray;
             }
 
             input {
+                transition: background-color 0.5s ease, border-color 0.5s ease;
                 font-size: 1.5rem;
                 padding: 10px;
                 width: 100%;
-                border-radius: 6px;
+                border-radius: 3px;
             }
         }
     }
@@ -249,15 +303,18 @@ body {
     }
 
     .pending-answer {
-        border: 2px solid #f4d578;
+        border: 1px solid #f7c633;
+        background-color: #ffedb691;
     }
 
     .incorrect-answer {
-        border: 2px solid rgb(252, 95, 95);
+        border: 1px solid #db2828;
+        background-color: #ff66669e;
     }
 
     .correct-answer {
-        border: 2px solid rgb(35, 185, 103);
+        border: 1px solid #2f8a2f;
+        background-color: #4ecc4e96;
     }
 
     .question {
@@ -298,14 +355,14 @@ body {
 
         .buzzer:disabled {
             background: rgb(202, 202, 202);
-            border: 2px solid gray;
+            border: 2px solid rgb(202, 202, 202);
             color: gray;
         }
 
         .buzzer {
             color: #fff;
             background: royalblue;
-            border: 2px solid #000;
+            border: 2px solid royalblue;
             border-radius: 3px;
             padding: 10px;
             width: 200px;
@@ -393,6 +450,9 @@ body {
 /* lobby */
 
 .lobby-players {
+    overflow-y: scroll;
+    height: 100%;
+
     .lobby-player {
         display: flex;
         align-items: center;

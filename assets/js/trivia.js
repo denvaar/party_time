@@ -104,8 +104,6 @@ hooks.lobbyPlayers = {
       .map((div) => div.id.split("-")[1])
       .filter((id) => id);
 
-    console.log({ sourceOfTruthIds, animatedIds });
-
     // does the animated list view contain any players that are not reflected
     // in the source of truth list?
     const idsToRemove = animatedIds.filter(

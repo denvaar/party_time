@@ -1,7 +1,7 @@
 <div class="question-area">
   <div class="header">
-    <div><%= @selected_category %></div>
-    <div><%= @current_question.value %></div>
+    <div class="slide-down-first"><%= @selected_category %></div>
+    <div class="slide-down-second"><%= @current_question.value %></div>
   </div>
   <div class='question slide-in-first <%= if @buzzed_in_user_id, do: "adjust", else: "" %>'>
     <h3><%= @current_question.prompt %></h3>
@@ -16,26 +16,62 @@
               src="<%= player(@game.players, @buzzed_in_user_id).avatar_url %>"
               />
           </div>
-          <%= if @buzzed_in_user_id == @current_user_id do %>
-            <div>Type your answer below!</div>
-          <% else %>
-            <div><%= player(@game.players, @buzzed_in_user_id).display_name %> is answering...</div>
+          <%= if @answer_status == :pending do %>
+            <%= if @buzzed_in_user_id == @current_user_id do %>
+              <div>Your answer is...</div>
+            <% else %>
+              <div><%= player(@game.players, @buzzed_in_user_id).display_name %>'s answer is...</div>
+            <% end %>
+          <% end %>
+
+          <%= if @answer_status == :incorrect do %>
+            <%= if @buzzed_in_user_id == @current_user_id do %>
+              <div>Your answer is... incorrect</div>
+            <% else %>
+              <div><%= player(@game.players, @buzzed_in_user_id).display_name %>'s answer is... incorrect</div>
+            <% end %>
+          <% end %>
+
+          <%= if @answer_status == :correct do %>
+            <%= if @buzzed_in_user_id == @current_user_id do %>
+              <div>Your answer is... correct!</div>
+            <% else %>
+              <div><%= player(@game.players, @buzzed_in_user_id).display_name %>'s answer is... correct</div>
+            <% end %>
+          <% end %>
+
+          <%= if @answer_status == nil do %>
+            <%= if @buzzed_in_user_id == @current_user_id do %>
+              <div>Type your answer below!</div>
+            <% else %>
+              <div><%= player(@game.players, @buzzed_in_user_id).display_name %> is answering...</div>
+            <% end %>
           <% end %>
         </div>
         <%= if @buzz_in_seconds_remaining != nil do %>
-          <div class="countdown"><%= @buzz_in_seconds_remaining %></div>
+          <div class="countdown">
+            <!-- change id each time to force entire node rerender -->
+            <span class="bounce" id="junk-<%= @buzz_in_seconds_remaining %>">
+              <%= @buzz_in_seconds_remaining %>
+            </span>
+          </div>
         <% end %>
       </div>
       <div class="game-event-body">
         <%= if @buzzed_in_user_id == @current_user_id do %>
           <%= form_for :player_answer, "#", [phx_change: "typing-answer", phx_submit: :"submit-answer"], fn f -> %>
             <div style="display:flex">
-              <input type="text" autofocus name="player_answer[answer]" value="<%= @player_answer %>" class="<%= answer_status_css_class(@buzzed_in_user_id, nil) %>" />
-              <%= submit "Submit" %>
+              <%= if @answer_status == nil do %>
+                <input type="text" autofocus name="player_answer[answer]" value="<%= @player_answer %>" class="<%= answer_status_css_class(@answer_status) %>" />
+                <%= submit "Submit" %>
+              <% else %>
+                <input type="text" readonly value="<%= @player_answer %>" class="<%= answer_status_css_class(@answer_status) %>" />
+                <button disabled>Submit</button>
+              <% end %>
             </div>
           <% end %>
         <% else %>
-          <input type="text" value="<%= @player_answer %>" class="<%= answer_status_css_class(@buzzed_in_user_id, nil) %>" readonly />
+          <input type="text" value="<%= @player_answer %>" class="<%= answer_status_css_class(@answer_status) %>" readonly />
         <% end %>
       </div>
     </div>

@@ -6,6 +6,11 @@ defmodule PartyTimeWeb.ErrorView do
   # def render("500.html", _assigns) do
   #   "Internal Server Error"
   # end
+  #
+
+  def render("500.html", _assigns) do
+    "Aww shit we forgot Curtis"
+  end
 
   # By default, Phoenix returns the status message from
   # the template name. For example, "404.html" becomes

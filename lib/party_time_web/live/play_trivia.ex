@@ -7,37 +7,42 @@ defmodule PartyTimeWeb.PlayTriviaLive do
 
   @impl true
   def mount(%{"game_id" => game_id}, session, socket) do
-    if connected?(socket) do
-      current_user = PartyTimeWeb.Credentials.get_user(socket, session)
-      # Updates about the game state changes
-      PartyTimeWeb.Endpoint.subscribe("#{@game_name}:updates:#{game_id}")
-      # Updates not neccessarily about the game state itself...idk how to explain
-      PartyTimeWeb.Endpoint.subscribe("#{@game_name}:meta:#{game_id}")
+    if Process.whereis(String.to_atom(game_id)) do
+      if connected?(socket) do
+        current_user = PartyTimeWeb.Credentials.get_user(socket, session)
+        # Updates about the game state changes
+        PartyTimeWeb.Endpoint.subscribe("#{@game_name}:updates:#{game_id}")
+        # Updates not neccessarily about the game state itself...idk how to explain
+        PartyTimeWeb.Endpoint.subscribe("#{@game_name}:meta:#{game_id}")
 
-      connected_user_ids =
-        PartyTime.Presence.list_players("#{@game_name}:presences:#{game_id}")
-        |> Map.keys()
+        connected_user_ids =
+          PartyTime.Presence.list_players("#{@game_name}:presences:#{game_id}")
+          |> Map.keys()
 
-      is_host = Enum.count(connected_user_ids) == 0
+        is_host = Enum.count(connected_user_ids) == 0
 
-      PartyTime.Presence.track_player(
-        "#{@game_name}:presences:#{game_id}",
-        current_user.id,
-        %{is_host: is_host}
-      )
+        PartyTime.Presence.track_player(
+          "#{@game_name}:presences:#{game_id}",
+          current_user.id,
+          %{is_host: is_host}
+        )
 
-      {:ok,
-       assign(socket,
-         game: nil,
-         game_id: game_id,
-         game_status: :lobby,
-         is_host: is_host,
-         current_user_id: current_user.id,
-         selected_category: nil,
-         current_question: nil
-       )}
+        {:ok,
+         assign(socket,
+           game: nil,
+           game_id: game_id,
+           game_status: :lobby,
+           is_host: is_host,
+           current_user_id: current_user.id,
+           selected_category: nil,
+           current_question: nil
+         )}
+      else
+        {:ok, assign(socket, game: nil, is_host: false, game_status: :lobby)}
+      end
     else
-      {:ok, assign(socket, game: nil, is_host: false, game_status: :lobby)}
+      {:ok,
+       redirect(socket, to: Routes.page_path(PartyTimeWeb.Endpoint, :index, game_code: game_id))}
     end
   end
 
@@ -98,7 +103,6 @@ defmodule PartyTimeWeb.PlayTriviaLive do
   end
 
   def handle_event("select-category", %{"selected_category" => selected_category}, socket) do
-    IO.inspect(selected_category)
     GameServer.view_category(String.to_atom(socket.assigns.game_id), selected_category)
     {:noreply, socket}
   end
