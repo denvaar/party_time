@@ -10,7 +10,7 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :party_time, PartyTimeWeb.Endpoint,
-  url: [scheme: "https", host: System.get_env("HOSTNAME") || "localhost", port: 443],
+  url: [scheme: "https", host: System.get_env("HOSTNAME"), port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
@@ -18,7 +18,6 @@ config :party_time, PartyTimeWeb.Endpoint,
 config :logger, level: :info
 
 # ## SSL Support
-#
 # To get SSL working, you will need to add the `https` key
 # to the previous section and set your `:url` port to 443:
 #
