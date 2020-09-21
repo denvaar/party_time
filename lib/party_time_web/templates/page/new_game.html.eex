@@ -1,0 +1,13 @@
+<div class="margin-container">
+  <%= form_for @conn, Routes.page_path(@conn, :create_game), [multipart: true], fn f -> %>
+    <label for="upload">Upload game file</label>
+    <div class="form-group">
+      <%= file_input f, :upload %>
+    </div>
+    <label for="upload">Pick a game code</label>
+    <div class="form-group">
+      <%= text_input f, :game_code, placeholder: "Game code" %>
+    </div>
+    <%= submit "Create" %>
+  <% end %>
+</div>

@@ -28,6 +28,10 @@ defmodule PartyTimeWeb.Router do
       error_handler: Pow.Phoenix.PlugErrorHandler
   end
 
+  pipeline :hosts_only do
+    plug PartyTimeWeb.EnsureRolePlug, :host
+  end
+
   scope "/" do
     pipe_through :skip_csrf_protection
 
@@ -43,11 +47,17 @@ defmodule PartyTimeWeb.Router do
 
   scope "/", PartyTimeWeb do
     pipe_through [:browser, :protected]
-    # pipe_through :browser
 
     get "/", PageController, :index
-    live "/games/trivia", TriviaLive, :index
+    post "/", PageController, :create
     live "/games/trivia/:game_id", PlayTriviaLive, :index
+  end
+
+  scope "/", PartyTimeWeb do
+    pipe_through [:browser, :protected, :hosts_only]
+
+    get "/games/trivia", PageController, :new_game
+    post "/games/trivia", PageController, :create_game
   end
 
   # Enables LiveDashboard only for development
@@ -64,5 +74,11 @@ defmodule PartyTimeWeb.Router do
       pipe_through :browser
       live_dashboard "/dashboard", metrics: PartyTimeWeb.Telemetry
     end
+  end
+
+  scope "/", PartyTimeWeb do
+    pipe_through [:browser]
+
+    get "/*path", RedirectHome, as: :force_redirect
   end
 end

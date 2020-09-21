@@ -25,11 +25,14 @@ defmodule PartyTime.Games.Trivia.Game do
   @doc """
   Add player to a Trivia game.
   """
-  @spec add_player(t(), {pos_integer(), String.t()}) :: t()
-  def add_player(state, {user_id, display_name}) do
+  @spec add_player(t(), {pos_integer(), String.t(), String.t()}) :: t()
+  def add_player(state, {user_id, display_name, avatar_url}) do
     %{
       state
-      | players: [%Player{user_id: user_id, display_name: display_name} | state.players]
+      | players: [
+          %Player{user_id: user_id, display_name: display_name, avatar_url: avatar_url}
+          | state.players
+        ]
     }
   end
 
@@ -144,6 +147,17 @@ defmodule PartyTime.Games.Trivia.Game do
 
     state
     |> set_game_status()
+    |> Map.put(:players, players)
+  end
+
+  def make_everyone_able_to_answer(state) do
+    players =
+      state.players
+      |> Enum.map(fn player ->
+        %{player | able_to_answer: true}
+      end)
+
+    state
     |> Map.put(:players, players)
   end
 

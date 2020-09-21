@@ -1,29 +1,68 @@
-<h1>Trivia</h1>
 <%= if @is_host do %>
-  <p>Ok, now share this link with others. Once you have enough players, you can start the game.</p>
+  <div class="margin-container">
+    <p>Ok, now share this link with others. Once you have enough players, you can start the game.</p>
 
-  <%= if @game && length(@game.players) > 1 do %>
-    <button phx-click="start-game">Start Game</button>
-  <% else %>
-    <button phx-click="start-game" disabled>Start Game</button>
-  <% end %>
-<% else %>
-  <p><i>Waiting for the host to start game...</i></p>
-<% end %>
-
-<%= if @game do %>
-  <h3>Players</h3>
-  <%= if length(@game.players) == 0 do %>
-    <i>Nobody has joined yet.</i>
-  <% end %>
-  <ul>
-    <%= for player <- @game.players do %>
-      <li>
-        <%= player.display_name %>
-        <%= if player.user_id == @current_user_id do %>
-          (You)
-        <% end %>
-      </li>
+    <%= if @game && length(@game.players) > 1 do %>
+      <button phx-click="start-game">Start Game</button>
+    <% else %>
+      <button phx-click="start-game" disabled>Start Game</button>
     <% end %>
-  </ul>
+    <%= if @game do %>
+      <h3>Players</h3>
+      <%= if length(@game.players) == 0 do %>
+        <i>Nobody has joined yet</i>
+      <% end %>
+      <ul>
+        <%= for player <- @game.players do %>
+          <li>
+            <%= player.display_name %>
+            <%= if player.user_id == @current_user_id do %>
+              (You)
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+<% else %>
+  <div class="wave-backdrop">
+    <%= if @game do %>
+      <h1 class="block-effect" style="--td: 1s;">
+        <div class="block-reveal" style="--bc: #27daa4; --d: 0.1s;">Hello!</div>
+        <div class="block-reveal" style="--bc: #5340bf; --d: 0.5s;">
+          Game starting soon
+        </div>
+      </h1>
+
+      <ul style="display:none" id="lobby-players" phx-hook="lobbyPlayers">
+        <%= for {player, index} <- lobby_players(@game.players) do %>
+          <li
+            data-playername="<%= player.display_name %>"
+            data-playerid="<%= player.user_id %>"
+            data-avatarurl="<%= player.avatar_url %>"></li>
+        <% end %>
+      </ul>
+
+      <div id="player-list" class="lobby-players" phx-update="ignore">
+        <div id="nextplayer" style="--animation-order: <%= length(@game.players) + 10 %>;" class="lobby-player empty">
+          <div class="player-picture item">
+            <div></div>
+          </div>
+          <div class="item">Who's next?</div>
+        </div>
+        <%= for {player, index} <- lobby_players(@game.players) do %>
+          <div id="id-<%= player.user_id %>" style="--animation-order: <%= index %>;" class="lobby-player">
+            <div class="player-picture item">
+              <img
+                referrerpolicy="no-referrer"
+                src="<%= player.avatar_url %>"
+                />
+            </div>
+            <div class="item"><%= player.display_name %></div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 <% end %>
+

@@ -38,58 +38,12 @@ defmodule PartyTimeWeb.TriviaLive do
         assign(socket,
           game_id: game_id,
           game: GameServer.get_state(game_id),
+          active_tab: :category,
           game_status: :setup,
           adding_question_category: nil
         )
       }
     end
-  end
-
-  def handle_event(
-        "create-category",
-        %{"category_name" => category_name},
-        socket
-      ) do
-    game = GameServer.add_category(socket.assigns.game_id, category_name)
-
-    {:noreply, assign(socket, game: game)}
-  end
-
-  def handle_event("add-question", %{"category_name" => category_name}, socket) do
-    {:noreply, assign(socket, adding_question_category: category_name)}
-  end
-
-  def handle_event(
-        "create-question",
-        %{
-          "category_name" => category_name,
-          "prompt" => prompt,
-          "expected_answer" => expected_answer,
-          "value" => value
-        },
-        socket
-      ) do
-    game =
-      GameServer.add_question(
-        socket.assigns.game_id,
-        category_name,
-        prompt,
-        expected_answer,
-        String.to_integer(value)
-      )
-
-    {:noreply, assign(socket, adding_question_category: nil, game: game)}
-  end
-
-  def handle_event("next", _params, socket) do
-    path =
-      PartyTimeWeb.Router.Helpers.play_trivia_path(
-        PartyTimeWeb.Endpoint,
-        :index,
-        socket.assigns.game_id
-      )
-
-    {:noreply, push_redirect(socket, to: path)}
   end
 
   defp new_game(game_id) do

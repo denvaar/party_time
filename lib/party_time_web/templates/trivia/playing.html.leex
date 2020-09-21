@@ -1,102 +1,69 @@
-<h1>Trivia</h1>
 <%= if @is_host do %>
-  <%= if @current_question do %>
-    <h4><%= @current_question.prompt %></h4>
-    <p><%= @current_question.expected_answer %></p>
+  <div class="margin-container">
+    <%= if @current_question do %>
+      <h3><%= @selected_category %></h3>
+      <h4><%= @current_question.prompt %></h4>
+      <h4><%= @current_question.value %></h4>
+      <p>Expected answer: <i><%= @current_question.expected_answer %></i></p>
 
-    <%= if @buzz_in_seconds_remaining do %>
-      <p><%= @buzz_in_seconds_remaining %> seconds left...</p>
-    <% end %>
-    <p>Player response: <%= if @player_answer, do: @player_answer, else: '--' %></p>
-    <%= if @player_answer do %>
-      <button phx-click="judge-answer" value="correct">Correct</button>
-      <button phx-click="judge-answer" value="incorrect">Incorrect</button>
-    <% end %>
-  <% end %>
-<% else %>
-  <p><%= player(@game.players, @current_user_id).score %></p>
-
-  <%= if @current_question do %>
-    <h4><%= @current_question.prompt %></h4>
-
-    <%= if @buzz_in_seconds_remaining do %>
-      <p><%= @buzz_in_seconds_remaining %> seconds left...</p>
-    <% end %>
-
-    <%= if !player(@game.players, @current_user_id).able_to_answer do %>
-      <button disabled>Buzz-in</button>
-    <% else %>
-      <%= if @buzzed_in_user_id do %>
-        <%= if @buzzed_in_user_id != @current_user_id do %>
-          <button disabled>Buzz-in</button>
-        <% end %>
-
-        <%= if @buzzed_in_user_id == @current_user_id do %>
-          <%= form_for :player_answer, "#", [phx_change: "typing-answer", phx_submit: :"submit-answer"], fn f -> %>
-            <div style="display:flex">
-              <%= text_input f, :answer, value: @player_answer %>
-              <%= submit "Submit" %>
-            </div>
-          <% end %>
-        <% end %>
-      <% else %>
-        <button phx-click="buzz-in">Buzz-in</button>
+      <%= if @buzz_in_seconds_remaining do %>
+        <p><%= @buzz_in_seconds_remaining %> seconds left...</p>
       <% end %>
+
+      <%= if @buzzed_in_user_id do %>
+        <p><i><%= player(@game.players, @buzzed_in_user_id).display_name %> buzzed in...</i></p>
+      <% end %>
+      <%= if @player_answer do %>
+        <p><%= player(@game.players, @buzzed_in_user_id).display_name %>'s answer: <i><%= @player_answer %></i></p>
+        <button phx-click="judge-answer" value="correct">Correct</button>
+        <button phx-click="judge-answer" value="incorrect">Incorrect</button>
+      <% end %>
+    <% else %>
+      <p><b><%= controlling_player(@game).display_name %></b> is choosing a category and question...</p>
     <% end %>
-
-
-
-
-  <% else %>
-    <div class="game-board-container">
-      <div class="game-board">
-        <%= for category <- @game.categories do %>
-          <div class="category">
-            <div class="question title">
-              <%= category.name %>
-            </div>
-            <%= for question <- category.questions do %>
-              <%= if question.is_available do %>
-                <%= if player_has_control?(@game, @current_user_id) do %>
-                  <button
-                    class="question"
-                    phx-click="pick-question"
-                    phx-value-question_id="<%= question.id %>">
-                    <%= question.value %>
-                  </button>
-                <% else %>
-                  <button class="question">
-                    <%= question.value %>
-                  </button>
+  </div>
+<% else %>
+  <div class="wave-backdrop">
+    <%= if @current_question do %>
+      <%= render @view_module, "_current_question.html", assigns %>
+    <% else %>
+      <%= render @view_module, "_game_board.html", assigns %>
+    <% end %>
+    <div class="info-container">
+      <div class="score-board">
+        <table>
+          <%= for {player, index} <- Enum.with_index(@game.players) do %>
+            <tr>
+              <td><%= index + 1 %>.</td>
+              <td>
+                <div class="player-picture">
+                  <img
+                    referrerpolicy="no-referrer"
+                    src="<%= player.avatar_url %>"
+                    />
+                </div>
+              </td>
+              <td><%= player.display_name %>
+                <%= if player.user_id == @current_user_id do %>
+                  (You)
                 <% end %>
-              <% else %>
-                <button class="question" disabled></button>
-              <% end %>
-            <% end %>
-          </div>
-        <% end %>
+              </td>
+              <td>
+                <%= player.score %>
+              </td>
+            </tr>
+          <% end %>
+        </table>
       </div>
     </div>
-  <% end %>
-<% end %>
-
-<%= if @game && @question_answer_history do %>
-  <div>
-    <%= if @buzzed_in_user_id do %>
-      <p>
-        <i>
-          <%= player(@game.players, @buzzed_in_user_id).display_name %> is typing...
-        </i>
-      </p>
-    <% end %>
-    <%= for {user_id, answer, correct?} <- @question_answer_history do %>
-      <p>
-      <%= player(@game.players, user_id).display_name %> answered <%= answer %> <%= if correct?, do: "✅", else: "🚫" %>
-      </p>
-    <% end %>
+    <div class="menu">
+      <div class="form-toggle-area">
+        <div class="tabs">
+          <button class="tablink active-tab">Scoreboard</button>
+          <button class="tablink">Chat</button>
+        </div>
+      </div>
+    </div>
   </div>
 <% end %>
 
-<%= if @game do %>
-  <%= render @view_module, "_scoreboard.html", assigns %>
-<% end %>

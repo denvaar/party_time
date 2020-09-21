@@ -1,63 +1,94 @@
 <div class="margin-container">
-  <p>You're the host! It's your job to determine if the answers that players submit are correct.</p>
-  <p>First you need to create some categories and questions before the game can begin.</p>
+  <p style="text-align: center;">Add categories and questions.</p>
 </div>
 
-  <%= if @adding_question_category != nil do %>
-    <h3>Question for "<%= @adding_question_category %>" category</h3>
-    <form phx-submit="create-question">
-      <div>
-          <input type="text" name="prompt" placeholder="What is the question prompt?" required />
-          <input type="text" name="expected_answer" placeholder="What should the answer be?" required />
-          <input type="number" name="value" placeholder="How many points is it worth?" required />
-          <input type="hidden" name="category_name" value="<%= @adding_question_category %>" />
-        <%= submit "Add Question" %>
-      </div>
-    </form>
+<div class="form-toggle-area">
+  <div class="tabs">
+    <button
+      id="category-button"
+      phx-click="set-tab"
+      value="category"
+      class='tablink <%= if @active_tab == :category, do: "active-tab", else: "" %>'>
+      Categories
+    </button>
+    <button
+      id="question-button"
+      phx-click="set-tab"
+      value="question"
+      class='tablink <%= if @active_tab == :question, do: "active-tab", else: "" %>'>
+      Questions
+    </button>
+  </div>
+</div>
 
-  <% else %>
-    <div class="margin-container">
-      <h3>Categories</h3>
-      <div class="form-group">
-        <form phx-submit="create-category">
-          <div style="display:flex">
-            <input type="text" name="category_name" placeholder="Category name" autofocus autocomplete="off" required style="margin-right:10px;"/>
-            <%= submit "Add Category" %>
+<%= if @active_tab == :category do %>
+  <div class="viewport" id="horizontal-swiper" phx-hook="categorySwiper">
+    <div class="swiper-items horizontal">
+      <%= for category <- @game.categories do %>
+        <div class="item" data-category_name="<%= category.name %>">
+          <div class="item-inner category">
+            <button class="remove">Remove</button>
+            <h2><%= category.name %></h2>
           </div>
-        </form>
-      </div>
-    </div>
-
-    <div class="swiper-viewport" id="swiper-viewport" phx-hook="swiperViewport">
-      <%= if length(@game.categories) == 0 do %>
-        <i>No categories yet.<i>
+        </div>
       <% end %>
-      <ul class="swiper-items">
-        <%= for category <- @game.categories do %>
-          <li class="swiper-item">
-            <h3><%= category.name %></h3>
-            <div>
-              <a href="#" phx-click="add-question" phx-value-category_name="<%= category.name %>">Edit Questions</a>
-            </div>
-            <!--<ul>
-              <%= for question <- category.questions do %>
-                <li>
-                  <%= question.prompt %> (<%= question.value %>)
-                </li>
-              <% end %>
-            </ul>-->
-          </li>
-        <% end %>
-      </ul>
-      <ul class="swiper-indicators" aria-hidden>
-        <%= for category <- @game.categories do %>
-          <li class="swiper-indicator"></li>
-        <% end %>
-      </ul>
     </div>
 
-    <div class="margin-container">
-      <button phx-click="next">All Done</button>
+    <ul class="swiper-indicators horizontal">
+      <%= for category <- @game.categories do %>
+        <li class="swiper-indicator"></li>
+      <% end %>
+    </ul>
+  </div>
+  <div class="margin-container">
+    <div class="form-group">
+      <form phx-submit="create-category" style="margin-bottom:0;">
+        <div style="display:flex">
+          <input type="text" name="category_name" placeholder="Category name" autofocus autocomplete="off" required style="margin-right:10px;min-width:160px;"/>
+          <%= submit "Add", class: "button", style: "max-width: 100px" %>
+        </div>
+      </form>
     </div>
-  <% end %>
+  </div>
+<% else %>
+  <div class="viewport" id="vertical-swiper" phx-hook="questionSwiper">
+    <div class="swiper-items vertical">
+      <%= for question <- category_questions(@game.categories, @adding_question_category) do %>
+        <div class="item">
+          <div class="item-inner question">
+            <button class="remove">Remove</button>
+            <h2><%= question.value %></h2>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <ul class="swiper-indicators vertical">
+      <%= for question <- category_questions(@game.categories, @adding_question_category) do %>
+        <li class="swiper-indicator"></li>
+      <% end %>
+    </ul>
+  </div>
+  <div class="margin-container">
+    <div class="form-group">
+      <form phx-submit="create-question">
+        <div>
+            <label for="category_name">Category</label>
+            <input type="text" disabled name="category_name" value="<%= @adding_question_category %>" />
+            <input type="hidden" name="category_name" value="<%= @adding_question_category %>" />
+            <label for="prompt">Question Prompt</label>
+            <input type="text" name="prompt" placeholder="What is the question prompt?" required />
+            <label for="expected_answer">Expected Answer</label>
+            <input type="text" name="expected_answer" placeholder="What should the answer be?" required />
+            <label for="value">Points</label>
+            <input type="number" name="value" placeholder="How many points is it worth?" required />
+          <%= submit "Add Question", class: "button" %>
+        </div>
+      </form>
+    </div>
+  </div>
+<% end %>
+<div class="margin-container">
+  <button phx-click="next">All Done</button>
 </div>
+
