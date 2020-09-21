@@ -56,7 +56,8 @@ defmodule PartyTimeWeb.Router do
   scope "/", PartyTimeWeb do
     pipe_through [:browser, :protected, :hosts_only]
 
-    live "/games/trivia", TriviaLive, :index
+    get "/games/trivia", PageController, :new_game
+    post "/games/trivia", PageController, :create_game
   end
 
   # Enables LiveDashboard only for development

@@ -6,20 +6,12 @@ defmodule PartyTime.Games.Trivia.GameServer do
 
   # client
 
-  def start_link(game_id) do
-    GenServer.start_link(__MODULE__, game_id, name: game_id)
+  def start_link({game_id, game}) do
+    GenServer.start_link(__MODULE__, {game_id, game}, name: game_id)
   end
 
   def get_state(game_id) do
     GenServer.call(game_id, :get_state)
-  end
-
-  def add_category(game_id, category_name) do
-    GenServer.call(game_id, {:add_category, category_name})
-  end
-
-  def add_question(game_id, category_name, prompt, expected_answer, value) do
-    GenServer.call(game_id, {:add_question, category_name, prompt, expected_answer, value})
   end
 
   def set_game_status(game_id, status) do
@@ -57,82 +49,11 @@ defmodule PartyTime.Games.Trivia.GameServer do
   # server
 
   @impl true
-  def init(game_id) do
+  def init({game_id, game}) do
     state =
       %{
         game_id: game_id,
-        game: %Game{
-          categories: [
-            %PartyTime.Games.Trivia.Category{
-              name: "NASA Space Voyages Gone Wrong",
-              questions: [
-                %PartyTime.Games.Trivia.Question{
-                  prompt: "asdfasdf",
-                  expected_answer: "asdfasdf",
-                  value: 200,
-                  id: :"1"
-                },
-                %PartyTime.Games.Trivia.Question{
-                  prompt: "aasdfasdfsdfasdf",
-                  expected_answer: "asdsdfiasdfasfasdf",
-                  value: 400,
-                  id: :"2"
-                }
-              ]
-            },
-            %PartyTime.Games.Trivia.Category{
-              name: "asdfas asdf asdf asdf asdf",
-              questions: [
-                %PartyTime.Games.Trivia.Question{
-                  prompt: "asdfa asdf asdfsdf",
-                  expected_answer: "asdfasdf",
-                  value: 200,
-                  id: :asdfasfd1
-                },
-                %PartyTime.Games.Trivia.Question{
-                  prompt: "aasasd asdf asdf asdf dfasdfsdfasdf",
-                  expected_answer: "asdsdfiasdfaasdfasdf afsd asdf sfasdf",
-                  value: 400,
-                  id: :"2wwwewe"
-                }
-              ]
-            },
-            %PartyTime.Games.Trivia.Category{
-              name: "asfd asaaa aa  a a a sdfa",
-              questions: [
-                %PartyTime.Games.Trivia.Question{
-                  prompt: "asdfa asdf asdfsdf",
-                  expected_answer: "asdfasdf",
-                  value: 200,
-                  id: :asdfasfdsssd1
-                },
-                %PartyTime.Games.Trivia.Question{
-                  prompt: "aasasd asdf asdf asdf dfasdfsdfasdf",
-                  expected_answer: "asdsdfiasdfaasdfasdf afsd asdf sfasdf",
-                  value: 400,
-                  id: :"2wwwewasdfasdfe"
-                }
-              ]
-            },
-            %PartyTime.Games.Trivia.Category{
-              name: "World Geography",
-              questions: [
-                %PartyTime.Games.Trivia.Question{
-                  prompt: "asdfasdasdf asdf asdf f",
-                  expected_answer: "asdfasdf",
-                  value: 200,
-                  id: :"12"
-                },
-                %PartyTime.Games.Trivia.Question{
-                  prompt: "aasdfasdfsdfaasdf asdf asdf asdfsdf",
-                  expected_answer: "asdsdfiasdfasfasdf",
-                  value: 400,
-                  id: :"22"
-                }
-              ]
-            }
-          ]
-        },
+        game: game,
         timer_ref: nil,
         question_timeout_timer_ref: nil
       }
@@ -306,28 +227,6 @@ defmodule PartyTime.Games.Trivia.GameServer do
   @impl true
   def handle_call(:get_state, _from, state) do
     {:reply, state.game, state}
-  end
-
-  def handle_call({:add_category, category_name}, _from, state) do
-    game = Game.add_category(state.game, category_name)
-    new_state = %{state | game: game}
-
-    {:reply, game, new_state}
-  end
-
-  def handle_call({:add_question, category_name, prompt, expected_answer, value}, _from, state) do
-    game =
-      Game.add_question(
-        state.game,
-        category_name,
-        prompt,
-        expected_answer,
-        value
-      )
-
-    new_state = %{state | game: game}
-
-    {:reply, game, new_state}
   end
 
   @impl true
@@ -525,6 +424,8 @@ defmodule PartyTime.Games.Trivia.GameServer do
       |> handle_joins(joins)
       |> handle_leaves(leaves)
 
+    IO.inspect(game)
+
     PartyTimeWeb.Endpoint.broadcast!(
       game_updates_topic(state.game_id),
       "game_state_update",
@@ -571,7 +472,13 @@ defmodule PartyTime.Games.Trivia.GameServer do
     leaves
     |> Map.keys()
     |> Enum.reduce(game, fn id, game ->
-      Game.remove_player(game, String.to_integer(id))
+      game = Game.remove_player(game, String.to_integer(id))
+
+      if Enum.all?(game.players, fn p -> !p.is_in_control end) do
+        Game.give_control(game, List.first(game.players).user_id)
+      else
+        game
+      end
     end)
   end
 

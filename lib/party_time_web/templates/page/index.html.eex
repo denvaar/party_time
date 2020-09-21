@@ -6,7 +6,7 @@
 <div class="join-container">
   <%= if PartyTime.Accounts.is_host?(@current_user) do %>
     <div class="available-game">
-      <p><%= link to: Routes.trivia_path(@conn, :index) do %>
+      <p><%= link to: Routes.page_path(@conn, :new_game) do %>
         Trivia
       <% end %></p>
     </div>

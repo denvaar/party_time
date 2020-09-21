@@ -1,27 +1,29 @@
 <%= if @is_host do %>
-  <p>Ok, now share this link with others. Once you have enough players, you can start the game.</p>
+  <div class="margin-container">
+    <p>Ok, now share this link with others. Once you have enough players, you can start the game.</p>
 
-  <%= if @game && length(@game.players) > 1 do %>
-    <button phx-click="start-game">Start Game</button>
-  <% else %>
-    <button phx-click="start-game" disabled>Start Game</button>
-  <% end %>
-  <%= if @game do %>
-    <h3>Players</h3>
-    <%= if length(@game.players) == 0 do %>
-      <i>Nobody has joined yet</i>
+    <%= if @game && length(@game.players) > 1 do %>
+      <button phx-click="start-game">Start Game</button>
+    <% else %>
+      <button phx-click="start-game" disabled>Start Game</button>
     <% end %>
-    <ul>
-      <%= for player <- @game.players do %>
-        <li>
-          <%= player.display_name %>
-          <%= if player.user_id == @current_user_id do %>
-            (You)
-          <% end %>
-        </li>
+    <%= if @game do %>
+      <h3>Players</h3>
+      <%= if length(@game.players) == 0 do %>
+        <i>Nobody has joined yet</i>
       <% end %>
-    </ul>
-  <% end %>
+      <ul>
+        <%= for player <- @game.players do %>
+          <li>
+            <%= player.display_name %>
+            <%= if player.user_id == @current_user_id do %>
+              (You)
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
 <% else %>
   <div class="wave-backdrop">
     <%= if @game do %>
