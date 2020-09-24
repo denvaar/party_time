@@ -550,3 +550,77 @@ body {
         opacity: 1;
     }
 }
+
+/* Game over */
+
+.player-picture.winner {
+    width: 70px;
+    height: 70px;
+    display: inline-block;
+}
+
+.game-over {
+    &.centered {
+        text-align: center;
+    }
+}
+
+@keyframes slideLeft {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideRight {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes shrink {
+    0% {
+        transform: scale(2) translateY(40px);
+    }
+    100% {
+        transform: unset;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.shrink-down {
+    transform: scale(2) translateY(40px);
+    animation: shrink 0.3s linear forwards;
+    animation-delay: 3s;
+}
+
+.slide-in-from-left {
+    transform: translateX(-100%);
+    animation: slideLeft 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    animation-delay: 3.3s;
+}
+
+.slide-in-from-right {
+    transform: translateX(100%);
+    animation: slideRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    animation-delay: 3.3s;
+}
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 0.5s linear forwards;
+    animation-delay: 3.7s;
+}

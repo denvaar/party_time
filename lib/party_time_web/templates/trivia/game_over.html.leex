@@ -1,5 +1,38 @@
-<h1>Trivia</h1>
+<% [first | non_winners] = players_sorted_by_score(@game.players) %>
+<div class="game-over centered">
+  <h4 class="shrink-down">The winner is...</h4>
+  <br />
+  <div style="width:100%" class="slide-in-from-left">
+    <span style="font-size: 4rem;position: absolute;z-index: 10;transform: rotate(20deg);top: -29px;">✨</span><span style="font-size: 4rem;position: absolute;z-index: 10;transform: rotate(-7deg);top: 40px;left: 52%;">✨</span>
+    <div class="player-picture item winner">
+      <img
+        referrerpolicy="no-referrer"
+        src="<%= first.avatar_url %>"
+        />
+    </div>
+    <span style="font-size: 4rem;position: absolute;z-index: 10;top: 52px;margin-left:-88px;background: #ffbf00;width: 40px;height: 40px;border-radius: 50%;font-size: 3rem;line-height:50px;">🏆</span>
+  </div>
+  <h1 class="slide-in-from-right" style="margin-top:10px;"><%= first.display_name %></h1>
+  <h4 class="slide-in-from-left"><%= first.score %> points</h4>
+  <div class="fade-in">
+    <hr style="width: 60%" />
+    <br />
+    <table style="width:80%;max-width:400px;margin:0 auto;overflow-y:scroll;">
+      <%= for looser <- non_winners do %>
+        <tr>
+          <td>
+            <div class="player-picture item">
+              <img
+                referrerpolicy="no-referrer"
+                src="<%= looser.avatar_url %>"
+                />
+            </div>
+          </td>
+          <td style="text-align:left;"><%= looser.display_name %></td>
+          <td style="text-align:right;"><%= looser.score %> points</td>
+        </tr>
+      <% end %>
+    </table>
+  </div>
+</div>
 
-<p>Game Over</p>
-
-<%= render @view_module, "_scoreboard.html", assigns %>

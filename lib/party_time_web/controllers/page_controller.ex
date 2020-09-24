@@ -41,7 +41,7 @@ defmodule PartyTimeWeb.PageController do
       redirect(conn, to: path)
     else
       {:error, message} ->
-        IO.inspect(message)
+        {:error, message}
     end
   end
 

@@ -16,9 +16,9 @@
     <%= form_for @conn, Routes.page_path(@conn, :create), fn f -> %>
       <div style="display:flex;margin-right:1rem;flex-wrap:wrap;">
         <%= if assigns[:invalid_game_code] do %>
-          <%= text_input f, :game_code, placeholder: "Game code", class: "error" %>
+          <%= text_input f, :game_code, autocorrect: "off", autocapitalize: "none", placeholder: "Game code", class: "error" %>
         <% else %>
-          <%= text_input f, :game_code, placeholder: "Game code" %>
+          <%= text_input f, :game_code, autocorrect: "off", autocapitalize: "none", placeholder: "Game code" %>
         <% end %>
         <%= submit "Join" %>
       </div>

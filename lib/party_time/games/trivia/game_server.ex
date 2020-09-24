@@ -424,8 +424,6 @@ defmodule PartyTime.Games.Trivia.GameServer do
       |> handle_joins(joins)
       |> handle_leaves(leaves)
 
-    IO.inspect(game)
-
     PartyTimeWeb.Endpoint.broadcast!(
       game_updates_topic(state.game_id),
       "game_state_update",
