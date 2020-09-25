@@ -88,8 +88,8 @@ body {
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            border: 1px solid #000;
-            background-color: #000;
+            border: 2px solid #6c6c6c;
+            background-color: #868686;
 
             &:not(:last-child) {
                 margin-right: 16px;
@@ -97,6 +97,8 @@ body {
 
             &.active {
                 background-color: #fff;
+                border: 2px solid royalblue;
+                box-shadow: 2px 2px 5px #fff;
             }
         }
     }
@@ -139,6 +141,7 @@ body {
                 margin: 10px;
                 padding: 10px;
                 width: 80%;
+                max-width: 350px;
                 height: 100%;
 
                 background: #fff;
@@ -189,23 +192,28 @@ body {
 
     justify-content: center;
 
-    .item {
-        font-size: 1.7rem;
-        color: #000;
-        background: #fff;
+    button {
+        border: 2px solid royalblue;
+        border-radius: 3px;
+        margin-left: 5px;
+
+        background-color: royalblue;
+        color: #fff;
+        font-size: 1.5rem;
         font-weight: bold;
-        padding: 10px;
-        margin: 10px;
-        width: 70px;
-        border-radius: 6px;
-        border: 2px solid #000;
-        text-align: center;
     }
 
     button:disabled,
     button[disabled] {
-        border-color: #999;
-        color: #999;
+        background: rgb(202, 202, 202);
+        border: 2px solid rgb(202, 202, 202);
+        color: gray;
+    }
+    .item {
+        padding: 10px;
+        margin: 10px;
+        width: 70px;
+        text-align: center;
     }
 }
 
@@ -221,11 +229,14 @@ body {
         background-color: #fff;
         box-shadow: 10px 10px;
 
-        margin: 10px;
+        width: 85%;
+        max-width: 600px;
+        margin: 0 auto;
         margin-top: -22px;
 
         .game-event-header {
-            padding: 13px;
+            padding: 18px;
+            padding-bottom: 5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -235,6 +246,7 @@ body {
                 color: #fff;
                 text-shadow: 1px 1px #ff45c8;
 
+                margin-top: 10px;
                 width: 30px;
                 height: 30px;
 
@@ -268,7 +280,7 @@ body {
 
         .game-event-body {
             text-align: left;
-            padding: 10px;
+            padding: 12px;
 
             button {
                 border: 2px solid royalblue;
@@ -330,8 +342,10 @@ body {
         background-color: #fff;
         box-shadow: 10px 10px;
 
+        width: 85%;
+        max-width: 600px;
         height: 200px;
-        margin: 10px;
+        margin: 0 auto;
         padding: 30px;
 
         &.adjust {
@@ -347,6 +361,10 @@ body {
         display: flex;
         justify-content: space-between;
         padding: 15px;
+
+        width: 85%;
+        max-width: 600px;
+        margin: 0 auto;
     }
 
     .buzzer-area {
@@ -623,4 +641,21 @@ body {
     opacity: 0;
     animation: fadeIn 0.5s linear forwards;
     animation-delay: 3.7s;
+}
+
+.control-notification {
+    text-align: center;
+    position: fixed;
+    top: -60px;
+    width: 100%;
+    background: #fff;
+    height: 50px;
+    padding-top: 10px;
+    border-bottom: 2px solid #000;
+    transition: top 0.3s;
+
+    &.reveal {
+        top: 0;
+        transition: top 0.3s;
+    }
 }

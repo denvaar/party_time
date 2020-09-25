@@ -9,7 +9,7 @@
     <% end %>
   </div>
   <ul class="swiper-indicators">
-    <%= for category <- @game.categories do %>
+    <%= for _category <- @game.categories do %>
       <li class="swiper-indicator"></li>
     <% end %>
   </ul>
@@ -42,7 +42,7 @@
       <% end %>
     </div>
   <% else %>
-    <div style="text-align:center;">
+    <div style="text-align:center;" class="control-notification" id="control-notification">
       <b><%= controlling_player(@game).display_name %></b> is choosing a category and question
     </div>
     <div class="questions">

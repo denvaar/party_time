@@ -59,7 +59,7 @@
       </div>
       <div class="game-event-body">
         <%= if @buzzed_in_user_id == @current_user_id do %>
-          <%= form_for :player_answer, "#", [phx_change: "typing-answer", phx_submit: :"submit-answer"], fn f -> %>
+          <%= form_for :player_answer, "#", [phx_change: "typing-answer", phx_submit: :"submit-answer"], fn _f -> %>
             <div style="display:flex">
               <%= if @answer_status == nil do %>
                 <input type="text" autofocus name="player_answer[answer]" value="<%= @player_answer %>" class="<%= answer_status_css_class(@answer_status) %>" />
