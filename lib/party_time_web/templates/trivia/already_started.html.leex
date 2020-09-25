@@ -4,27 +4,6 @@
   <svg style="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#ececec" fill-opacity="1" d="M0,320L40,314.7C80,309,160,299,240,277.3C320,256,400,224,480,202.7C560,181,640,171,720,144C800,117,880,75,960,74.7C1040,75,1120,117,1200,144C1280,171,1360,181,1400,186.7L1440,192L1440,0L1400,0C1360,0,1280,0,1200,0C1120,0,1040,0,960,0C880,0,800,0,720,0C640,0,560,0,480,0C400,0,320,0,240,0C160,0,80,0,40,0L0,0Z"></path></svg>
 </div>
 <div class="join-container">
-  <%= if PartyTime.Accounts.is_host?(@current_user) do %>
-    <div class="available-game">
-      <p><%= link to: Routes.page_path(@conn, :new_game) do %>
-        Trivia
-      <% end %></p>
-    </div>
-  <% end %>
-  <h2>Join with game code</h2>
-  <div class="form-group">
-    <%= form_for @conn, Routes.page_path(@conn, :create), fn f -> %>
-      <div style="display:flex;margin-right:1rem;flex-wrap:wrap;">
-        <%= if assigns[:invalid_game_code] do %>
-          <%= text_input f, :game_code, autocorrect: "off", autocapitalize: "none", required: true, placeholder: "Game code", class: "error" %>
-        <% else %>
-          <%= text_input f, :game_code, autocorrect: "off", autocapitalize: "none", required: true, placeholder: "Game code" %>
-        <% end %>
-        <%= submit "Join" %>
-      </div>
-      <%= if assigns[:invalid_game_code] do %>
-        <p class="error-message"><%= @invalid_game_code %></p>
-      <% end %>
-    <% end %>
-  </div>
+  <h2>Too late</h2>
+  <h4>This game has already started</h4>
 </div>

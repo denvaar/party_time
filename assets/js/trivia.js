@@ -4,11 +4,6 @@ import LiveSocket from "phoenix_live_view";
 import "../css/setup.scss";
 import "../css/lobby.scss";
 import "../css/trivia.scss";
-// import "../css/tabs.scss";
-// import "../css/swiper.scss";
-// import "../css/inputs.scss";
-// import "../css/accordian.scss";
-// import "../css/gameboard.scss";
 
 const intersectionObserver = (swiperViewportId, ref) => {
   const list = document
@@ -64,6 +59,37 @@ const hooks = {};
 hooks.categorySwiper = {
   mounted() {
     intersectionObserver("category-swiper", this);
+
+    let notifyTriggered = false;
+
+    const notify = (e) => {
+      e.preventDefault();
+      if (!notifyTriggered) {
+        notifyTriggered = true;
+        const controlNotification = document.getElementById(
+          "control-notification"
+        );
+        controlNotification.classList.add("reveal");
+
+        setTimeout(() => {
+          controlNotification.classList.remove("reveal");
+          notifyTriggered = false;
+        }, 3000);
+      }
+    };
+
+    if (this.el.dataset.incontrol !== "true") {
+      // this.el.querySelector(".swiper-items").style.overflowX = "hidden";
+      this.el.addEventListener("click", notify);
+      this.el.addEventListener("scroll", notify);
+      this.el.addEventListener("touchstart", notify);
+      this.el.addEventListener("touchmove", notify);
+    } else {
+      this.el.removeEventListener("click", notify);
+      this.el.removeEventListener("scroll", notify);
+      this.el.removeEventListener("touchstart", notify);
+      this.el.removeEventListener("touchmove", notify);
+    }
   },
 };
 
@@ -88,6 +114,15 @@ hooks.answerButtonContainer = {
   },
   destroyed() {
     this.el.classList.remove("slide-in-second");
+  },
+};
+
+hooks.hostView = {
+  mounted() {
+    window.onbeforeunload = function(e) {
+      delete e["returnValue"];
+      return "Are you sure you want to leave?";
+    };
   },
 };
 

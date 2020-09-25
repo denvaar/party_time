@@ -24,7 +24,8 @@ defmodule PartyTimeWeb.Endpoint do
     at: "/",
     from: :party_time,
     gzip: false,
-    only: ~w(css fonts images js favicon.ico robots.txt)
+    only:
+      ~w(css fonts images js favicon.ico robots.txt apple-touch-icon.png favicon-32x32.png favicon-16x16.png site.webmanifest)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

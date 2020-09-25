@@ -35,7 +35,7 @@
       </h1>
 
       <ul style="display:none" id="lobby-players" phx-hook="lobbyPlayers">
-        <%= for {player, index} <- lobby_players(@game.players) do %>
+        <%= for {player, _index} <- lobby_players(@game.players) do %>
           <li
             data-playername="<%= player.display_name %>"
             data-playerid="<%= player.user_id %>"

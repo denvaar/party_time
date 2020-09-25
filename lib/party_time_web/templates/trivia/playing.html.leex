@@ -1,4 +1,5 @@
 <%= if @is_host do %>
+  <div id="host-view" phx-hook="hostView"></div>
   <div class="margin-container">
     <%= if @current_question do %>
       <h3><%= @selected_category %></h3>

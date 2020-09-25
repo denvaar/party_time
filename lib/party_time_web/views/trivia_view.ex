@@ -41,6 +41,7 @@ defmodule PartyTimeWeb.TriviaView do
     categories
     |> Enum.find(fn category -> category.name == category_name end)
     |> questions_in_category()
+    |> Enum.sort_by(fn q -> q.value end)
   end
 
   defp questions_in_category(nil), do: []
