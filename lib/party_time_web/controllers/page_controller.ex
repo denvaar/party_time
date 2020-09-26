@@ -6,19 +6,14 @@ defmodule PartyTimeWeb.PageController do
   end
 
   def create(conn, %{"game_code" => game_code}) do
-    if Process.whereis(String.to_atom(game_code)) do
-      path =
-        Routes.play_trivia_path(
-          PartyTimeWeb.Endpoint,
-          :index,
+    redirect(conn,
+      to:
+        Routes.play_game_path(
+          conn,
+          :show,
           game_code
         )
-
-      redirect(conn, to: path)
-    else
-      conn
-      |> render(:index, invalid_game_code: "Nope, no game with that code")
-    end
+    )
   end
 
   def new_game(conn, _params) do
@@ -31,14 +26,14 @@ defmodule PartyTimeWeb.PageController do
     with {:ok, game} <- PartyTime.Games.Trivia.JsonLoader.load(data) do
       {:ok, _pid} = start_new_game(game_code, game)
 
-      path =
-        Routes.play_trivia_path(
-          PartyTimeWeb.Endpoint,
-          :index,
-          game_code
-        )
-
-      redirect(conn, to: path)
+      redirect(conn,
+        to:
+          Routes.play_game_path(
+            conn,
+            :show,
+            game_code
+          )
+      )
     else
       {:error, message} ->
         {:error, message}

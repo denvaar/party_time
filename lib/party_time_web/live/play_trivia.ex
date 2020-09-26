@@ -61,7 +61,9 @@ defmodule PartyTimeWeb.PlayTriviaLive do
   end
 
   @impl true
-  def mount(%{"game_id" => game_id}, session, socket) do
+  def mount(_params, session, socket) do
+    game_id = Map.get(session, "game_code")
+
     if connected?(socket) do
       game_id
       |> find_game()

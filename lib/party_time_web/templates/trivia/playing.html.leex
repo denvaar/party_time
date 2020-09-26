@@ -1,4 +1,6 @@
 <%= if @is_host do %>
+  <% buzzed_in_player = player(@game.players, @buzzed_in_user_id) %>
+
   <div id="host-view" phx-hook="hostView"></div>
   <div class="margin-container">
     <%= if @current_question do %>
@@ -11,11 +13,11 @@
         <p><%= @buzz_in_seconds_remaining %> seconds left...</p>
       <% end %>
 
-      <%= if @buzzed_in_user_id do %>
-        <p><i><%= player(@game.players, @buzzed_in_user_id).display_name %> buzzed in...</i></p>
+      <%= if buzzed_in_player do %>
+        <p><i><%= buzzed_in_player.display_name %> buzzed in...</i></p>
       <% end %>
-      <%= if @player_answer do %>
-        <p><%= player(@game.players, @buzzed_in_user_id).display_name %>'s answer: <i><%= @player_answer %></i></p>
+      <%= if @player_answer && @answer_status == :pending do %>
+        <p><%= buzzed_in_player.display_name %>'s answer: <i><%= @player_answer %></i></p>
         <button phx-click="judge-answer" value="correct">Correct</button>
         <button phx-click="judge-answer" value="incorrect">Incorrect</button>
       <% end %>
@@ -33,7 +35,7 @@
     <div class="info-container">
       <div class="score-board">
         <table>
-          <%= for {player, index} <- Enum.with_index(@game.players) do %>
+          <%= for {player, index} <- Enum.with_index(players_sorted_by_score(@game.players)) do %>
             <tr>
               <td><%= index + 1 %>.</td>
               <td>
@@ -55,14 +57,6 @@
             </tr>
           <% end %>
         </table>
-      </div>
-    </div>
-    <div class="menu">
-      <div class="form-toggle-area">
-        <div class="tabs">
-          <button class="tablink active-tab">Scoreboard</button>
-          <button class="tablink">Chat</button>
-        </div>
       </div>
     </div>
   </div>
