@@ -52,6 +52,7 @@ defmodule PartyTime.Games.Trivia.GameServer do
   def init({game_id, game}) do
     state =
       %{
+        game_name: "trivia",
         game_id: game_id,
         game: game,
         timer_ref: nil,

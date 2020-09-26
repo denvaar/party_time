@@ -1,9 +1,0 @@
-.accordian .content {
-    height: 0;
-    overflow: hidden;
-    transition: 0.2s linear 0s;
-}
-
-.accordian:target .content {
-    height: 300px;
-}

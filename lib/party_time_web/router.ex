@@ -50,7 +50,8 @@ defmodule PartyTimeWeb.Router do
 
     get "/", PageController, :index
     post "/", PageController, :create
-    live "/games/trivia/:game_id", PlayTriviaLive, :index
+
+    get "/play/:game_code", PlayGameController, :show
   end
 
   scope "/", PartyTimeWeb do

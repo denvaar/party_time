@@ -7,20 +7,21 @@
     <h3><%= @current_question.prompt %></h3>
   </div>
   <%= if @buzzed_in_user_id do %>
+    <% buzzed_in_player = player(@game.players, @buzzed_in_user_id) %>
     <div class="game-event-message">
       <div class="game-event-header">
         <div style="display: flex; align-items: center;">
           <div class="player-picture" style="margin-right: 10px;">
             <img
               referrerpolicy="no-referrer"
-              src="<%= player(@game.players, @buzzed_in_user_id).avatar_url %>"
+              src="<%= buzzed_in_player.avatar_url %>"
               />
           </div>
           <%= if @answer_status == :pending do %>
             <%= if @buzzed_in_user_id == @current_user_id do %>
               <div>Your answer is...</div>
             <% else %>
-              <div><%= player(@game.players, @buzzed_in_user_id).display_name %>'s answer is...</div>
+              <div><%= buzzed_in_player.display_name %>'s answer is...</div>
             <% end %>
           <% end %>
 
@@ -28,7 +29,7 @@
             <%= if @buzzed_in_user_id == @current_user_id do %>
               <div>Your answer is... incorrect</div>
             <% else %>
-              <div><%= player(@game.players, @buzzed_in_user_id).display_name %>'s answer is... incorrect</div>
+              <div><%= buzzed_in_player.display_name %>'s answer is... incorrect</div>
             <% end %>
           <% end %>
 
@@ -36,7 +37,7 @@
             <%= if @buzzed_in_user_id == @current_user_id do %>
               <div>Your answer is... correct!</div>
             <% else %>
-              <div><%= player(@game.players, @buzzed_in_user_id).display_name %>'s answer is... correct</div>
+              <div><%= buzzed_in_player.display_name %>'s answer is... correct</div>
             <% end %>
           <% end %>
 
@@ -44,7 +45,7 @@
             <%= if @buzzed_in_user_id == @current_user_id do %>
               <div>Type your answer below!</div>
             <% else %>
-              <div><%= player(@game.players, @buzzed_in_user_id).display_name %> is answering...</div>
+              <div><%= buzzed_in_player.display_name %> is answering...</div>
             <% end %>
           <% end %>
         </div>

@@ -5,6 +5,7 @@
     <%= if @game && length(@game.players) > 1 do %>
       <button phx-click="start-game">Start Game</button>
     <% else %>
+      <p>This game requires at least two players to begin.</p>
       <button phx-click="start-game" disabled>Start Game</button>
     <% end %>
     <%= if @game do %>

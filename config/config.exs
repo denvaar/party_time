@@ -21,6 +21,13 @@ config :party_time, PartyTimeWeb.Endpoint,
   render_errors: [view: PartyTimeWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: PartyTime.PubSub
 
+# Define games that are available so they can be found
+# using game_code
+config :party_time, :games,
+  modules: [
+    {"trivia", PartyTimeWeb.PlayTriviaLive, PartyTimeWeb.TriviaView}
+  ]
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

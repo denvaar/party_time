@@ -11,8 +11,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    <%= if String.match?(@conn.request_path, ~r/trivia/) do %>
-      <%= render_existing PartyTimeWeb.TriviaView, "scripts.html", assigns %>
+    <%= if String.match?(@conn.request_path, ~r/play/) do %>
+      <%= render_existing(PartyTimeWeb.GameFinder.find_view_module(@conn.path_info), "scripts.html", assigns) %>
     <% end %>
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </head>
