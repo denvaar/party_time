@@ -35,6 +35,10 @@
         </div>
       </h1>
 
+      <div class="title">
+        <input id="copy-link" type="hidden" />
+        <button phx-hook="copyToClipboard" id="copy-clipboard" style="font-weight:normal;padding:10px;width:160px;">📋 Copy Invite Link</button>
+      </div>
       <ul style="display:none" id="lobby-players" phx-hook="lobbyPlayers">
         <%= for {player, _index} <- lobby_players(@game.players) do %>
           <li

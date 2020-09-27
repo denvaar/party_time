@@ -50,46 +50,119 @@ const intersectionObserver = (swiperViewportId, ref) => {
 
   return observer;
 };
+
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");
 
 const hooks = {};
 
+let notifyTriggered = false;
+const notify = (e) => {
+  e.preventDefault();
+  if (!notifyTriggered) {
+    notifyTriggered = true;
+    const controlNotification = document.getElementById("control-notification");
+    if (controlNotification) {
+      controlNotification.classList.add("reveal");
+
+      setTimeout(() => {
+        controlNotification.classList.remove("reveal");
+        notifyTriggered = false;
+      }, 3000);
+    }
+  }
+};
+
+const removeEventListeners = (target) => {
+  const clickArea = document.getElementById("click-area");
+  target.removeEventListener("click", notify);
+  target.removeEventListener("touchstart", notify);
+  target.removeEventListener("touchmove", notify);
+
+  if (clickArea) {
+    clickArea.removeEventListener("click", notify);
+    clickArea.removeEventListener("touchstart", notify);
+  }
+};
+
 hooks.categorySwiper = {
+  unmounted() {
+    removeEventListeners(this.el);
+  },
   mounted() {
     intersectionObserver("category-swiper", this);
 
-    let notifyTriggered = false;
-
-    const notify = (e) => {
-      e.preventDefault();
-      if (!notifyTriggered) {
-        notifyTriggered = true;
-        const controlNotification = document.getElementById(
-          "control-notification"
-        );
-        controlNotification.classList.add("reveal");
-
-        setTimeout(() => {
-          controlNotification.classList.remove("reveal");
-          notifyTriggered = false;
-        }, 3000);
-      }
-    };
+    const clickArea = document.getElementById("click-area");
 
     if (this.el.dataset.incontrol !== "true") {
-      // this.el.querySelector(".swiper-items").style.overflowX = "hidden";
       this.el.addEventListener("click", notify);
-      this.el.addEventListener("scroll", notify);
       this.el.addEventListener("touchstart", notify);
       this.el.addEventListener("touchmove", notify);
+
+      if (clickArea) {
+        clickArea.addEventListener("click", notify);
+        clickArea.addEventListener("touchstart", notify);
+      }
     } else {
-      this.el.removeEventListener("click", notify);
-      this.el.removeEventListener("scroll", notify);
-      this.el.removeEventListener("touchstart", notify);
-      this.el.removeEventListener("touchmove", notify);
+      removeEventListeners(this.el);
     }
+  },
+};
+
+window.Clipboard = (function(window, document, navigator) {
+  var textArea, copy;
+
+  function isOS() {
+    return navigator.userAgent.match(/ipad|iphone/i);
+  }
+
+  function createTextArea(text) {
+    textArea = document.createElement("textArea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+  }
+
+  function selectText() {
+    var range, selection;
+
+    if (isOS()) {
+      range = document.createRange();
+      range.selectNodeContents(textArea);
+      selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      textArea.setSelectionRange(0, 999999);
+    } else {
+      textArea.select();
+    }
+  }
+
+  function copyToClipboard() {
+    document.execCommand("copy");
+    document.body.removeChild(textArea);
+  }
+
+  copy = function(text) {
+    createTextArea(text);
+    selectText();
+    copyToClipboard();
+  };
+
+  return {
+    copy: copy,
+  };
+})(window, document, navigator);
+
+hooks.copyToClipboard = {
+  mounted() {
+    this.el.addEventListener("click", (e) => {
+      Clipboard.copy(window.location.href);
+      e.target.innerText = "✅ Copied!";
+      setTimeout(() => {
+        e.target.innerText = "📋 Copy Invite Link";
+      }, 1000);
+    });
   },
 };
 

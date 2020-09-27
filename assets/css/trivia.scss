@@ -1,6 +1,14 @@
 body {
+    overflow-y: hidden;
     font-family: sans-serif;
     margin: 0;
+    height: 100%;
+    height: 100vh;
+}
+
+main {
+    height: 100%;
+    height: 100vh;
 }
 
 *,
@@ -9,14 +17,30 @@ body {
     box-sizing: border-box;
 }
 
+button {
+    border: 2px solid royalblue;
+    border-radius: 3px;
+    margin-left: 5px;
+
+    background-color: royalblue;
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+button:disabled,
+button[disabled] {
+    background: rgb(202, 202, 202);
+    border: 2px solid rgb(202, 202, 202);
+    color: gray;
+}
+
 .wave-backdrop {
     background-color: #ffffff;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='72' viewBox='0 0 36 72'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23cccccc' fill-opacity='0.4'%3E%3Cpath d='M2 6h12L8 18 2 6zm18 36h12l-6 12-6-12z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    position: absolute;
-    top: 0;
-    left: 0;
     height: 100%;
     width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .hidden {
@@ -25,7 +49,7 @@ body {
 
 @keyframes slideIn {
     from {
-        transform: translateX(130%);
+        transform: translateX(100vw);
     }
 
     to {
@@ -58,27 +82,27 @@ body {
 }
 
 .slide-in-first {
-    transform: translateX(130%);
+    transform: translateX(100vw);
     animation: slideIn 0.5s;
     animation-fill-mode: forwards;
-    animation-delay: 1.5s;
+    animation-delay: 2.5s;
 }
 .slide-in-second {
-    transform: translateX(130%);
+    transform: translateX(100vw);
     animation: slideIn 0.7s;
     animation-fill-mode: forwards;
-    animation-delay: 2.5s;
+    animation-delay: 2.7s;
 }
 
 .viewport {
     background: rgba(156, 156, 156, 0.548);
-    height: 200px;
+    height: 220px;
 
     .swiper-indicators {
         list-style: none;
         padding: 0;
         margin: 0;
-        margin-top: -15px;
+        margin-top: -24px;
 
         display: flex;
         justify-content: center;
@@ -116,6 +140,14 @@ body {
         touch-action: pan-x;
         scroll-snap-type: x mandatory;
 
+        &::-webkit-scrollbar {
+            /*Chrome, Safari, Edge*/
+            display: none;
+            -webkit-appearance: none;
+            width: 0;
+            height: 0;
+        }
+
         .item {
             display: flex;
             flex-shrink: 0;
@@ -123,7 +155,7 @@ body {
 
             height: 80%;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 10px;
 
             scroll-snap-align: center;
             scroll-snap-stop: always;
@@ -165,6 +197,14 @@ body {
     scroll-snap-type: x mandatory;
     background: rgba(156, 156, 156, 0.548);
 
+    &::-webkit-scrollbar {
+        /*Chrome, Safari, Edge*/
+        display: none;
+        -webkit-appearance: none;
+        width: 0;
+        height: 0;
+    }
+
     .item {
         font-size: 1.7rem;
         font-weight: bold;
@@ -192,23 +232,6 @@ body {
 
     justify-content: center;
 
-    button {
-        border: 2px solid royalblue;
-        border-radius: 3px;
-        margin-left: 5px;
-
-        background-color: royalblue;
-        color: #fff;
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
-
-    button:disabled,
-    button[disabled] {
-        background: rgb(202, 202, 202);
-        border: 2px solid rgb(202, 202, 202);
-        color: gray;
-    }
     .item {
         padding: 10px;
         margin: 10px;
@@ -281,24 +304,6 @@ body {
         .game-event-body {
             text-align: left;
             padding: 12px;
-
-            button {
-                border: 2px solid royalblue;
-                border-radius: 3px;
-                margin-left: 5px;
-
-                background-color: royalblue;
-                color: #fff;
-                font-size: 1.5rem;
-                font-weight: bold;
-            }
-
-            button:disabled,
-            button[disabled] {
-                background: rgb(202, 202, 202);
-                border: 2px solid rgb(202, 202, 202);
-                color: gray;
-            }
 
             input {
                 transition: background-color 0.5s ease, border-color 0.5s ease;
@@ -392,23 +397,35 @@ body {
 }
 
 .info-container {
-    position: absolute;
-    bottom: 0;
+    position: fixed;
+    z-index: 10;
     left: 0;
+    bottom: 0;
     width: 100%;
     height: 160px;
-    background-color: #0e0e0ec7;
     overflow-y: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+        /*Chrome, Safari, Edge*/
+        display: none;
+        -webkit-appearance: none;
+        width: 0;
+        height: 0;
+    }
 
     .score-board {
         color: #fff;
+        background-color: #0e0e0ec7;
+        max-width: 600px;
+        margin: 0 auto;
         table {
             width: 100%;
             border-collapse: collapse;
             tr {
                 border-top: 1px solid #ffffff70;
                 td {
-                    padding: 5px;
+                    padding: 7px;
                 }
             }
         }
@@ -470,6 +487,15 @@ body {
 .lobby-players {
     overflow-y: scroll;
     height: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+        /*Chrome, Safari, Edge*/
+        display: none;
+        -webkit-appearance: none;
+        width: 0;
+        height: 0;
+    }
 
     .lobby-player {
         display: flex;
@@ -500,7 +526,6 @@ body {
 }
 
 .block-effect {
-    font-size: calc(8px + 6vw);
     text-align: center;
 }
 
@@ -648,6 +673,7 @@ body {
     position: fixed;
     top: -60px;
     width: 100%;
+    max-width: 600px;
     background: #fff;
     height: 50px;
     padding-top: 10px;
