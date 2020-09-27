@@ -20,40 +20,41 @@
 <% end %>
 
 
-<%= if @selected_category do %>
-  <h3 class="title"><%= @selected_category %></h3>
-  <%= if player_has_control?(@game, @current_user_id) do %>
-    <div style="text-align:center;">
-      Choose a category and question
-    </div>
-    <div class="questions">
-      <%= for question <- category_questions(@game.categories, @selected_category) do %>
-        <%= if question.is_available do %>
-          <button
-            class='item'
-            phx-click="select-question"
-            phx-value-selected_question="<%= question.id %>"
-            phx-value-selected_category="<%= @selected_category %>">
-            <%= question.value %>
-          </button>
-        <% else %>
-          <button class="item" disabled> <%= question.value %></button>
+<div id="click-area">
+  <%= if @selected_category do %>
+    <h3 class="title"><%= @selected_category %></h3>
+    <%= if player_has_control?(@game, @current_user_id) do %>
+      <div style="text-align:center;">
+        Choose a category and question
+      </div>
+      <div class="questions">
+        <%= for question <- category_questions(@game.categories, @selected_category) do %>
+          <%= if question.is_available do %>
+            <button
+              class='item'
+              phx-click="select-question"
+              phx-value-selected_question="<%= question.id %>"
+              phx-value-selected_category="<%= @selected_category %>">
+              <%= question.value %>
+            </button>
+          <% else %>
+            <button class="item" disabled> <%= question.value %></button>
+          <% end %>
         <% end %>
-      <% end %>
-    </div>
-  <% else %>
-    <div style="text-align:center;" class="control-notification" id="control-notification">
-      <b><%= controlling_player(@game).display_name %></b> is choosing a category and question
-    </div>
-    <div class="questions">
-      <%= for question <- category_questions(@game.categories, @selected_category) do %>
-        <%= if question.is_available do %>
-          <button class="item"> <%= question.value %></button>
-        <% else %>
-          <button class="item" disabled> <%= question.value %></button>
+      </div>
+    <% else %>
+      <div style="text-align:center;" class="control-notification" id="control-notification">
+        <b><%= controlling_player(@game).display_name %></b> is choosing a category and question
+      </div>
+      <div class="questions">
+        <%= for question <- category_questions(@game.categories, @selected_category) do %>
+          <%= if question.is_available do %>
+            <button class="item"> <%= question.value %></button>
+          <% else %>
+            <button class="item" disabled> <%= question.value %></button>
+          <% end %>
         <% end %>
-      <% end %>
-    </div>
+      </div>
+    <% end %>
   <% end %>
-  </div>
-<% end %>
+</div>

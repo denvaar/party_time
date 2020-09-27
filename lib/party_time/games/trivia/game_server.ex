@@ -236,6 +236,8 @@ defmodule PartyTime.Games.Trivia.GameServer do
   end
 
   def handle_info({:tick, 0}, state) do
+    # A players buzzed in but didn't answer in time
+
     game =
       Game.incorrect_answer(
         state.game,
@@ -262,9 +264,21 @@ defmodule PartyTime.Games.Trivia.GameServer do
 
     current_question = if all_answered?, do: nil, else: state.current_question
 
+    question_timeout_timer_ref =
+      if all_answered? do
+        nil
+      else
+        Process.send_after(
+          self(),
+          {:question_timeout},
+          7_000
+        )
+      end
+
     meta_state = %{
       current_question: current_question,
       buzz_in_seconds_remaining: nil,
+      player_answer: nil,
       buzzed_in_user_id: nil,
       question_answer_history: [
         {state.buzzed_in_user_id, "--", false} | state.question_answer_history
@@ -276,13 +290,6 @@ defmodule PartyTime.Games.Trivia.GameServer do
       "game_meta_update",
       meta_state
     )
-
-    question_timeout_timer_ref =
-      Process.send_after(
-        self(),
-        {:question_timeout},
-        7_000
-      )
 
     {:noreply,
      %{state | question_timeout_timer_ref: question_timeout_timer_ref, timer_ref: nil, game: game}
@@ -473,7 +480,7 @@ defmodule PartyTime.Games.Trivia.GameServer do
     |> Enum.reduce(game, fn id, game ->
       game = Game.remove_player(game, String.to_integer(id))
 
-      if Enum.all?(game.players, fn p -> !p.is_in_control end) do
+      if length(game.players) > 0 && Enum.all?(game.players, fn p -> !p.is_in_control end) do
         Game.give_control(game, List.first(game.players).user_id)
       else
         game
