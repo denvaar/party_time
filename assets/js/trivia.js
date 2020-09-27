@@ -91,6 +91,12 @@ hooks.categorySwiper = {
     removeEventListeners(this.el);
   },
   mounted() {
+    const selectedCategory = document.getElementById(
+      this.el.dataset.selectedcategory
+    );
+    if (selectedCategory) {
+      selectedCategory.scrollIntoView({ behavior: "smooth" });
+    }
     intersectionObserver("category-swiper", this);
 
     const clickArea = document.getElementById("click-area");
