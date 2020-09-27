@@ -1,4 +1,4 @@
-<div class="viewport" id="category-swiper" phx-hook="categorySwiper" phx-update="ignore" data-inControl="<%= player_has_control?(@game, @current_user_id) %>">
+<div class="viewport" id="category-swiper" phx-hook="categorySwiper" phx-update="ignore" data-inControl="<%= player_has_control?(@game, @current_user_id) %>" data-selectedCategory="<%= Base.encode64(@selected_category || "") %>">
   <div class="swiper-items">
     <%= for category <- @game.categories do %>
       <div class="item" id="<%= Base.encode64(category.name) %>" data-category="<%= category.name %>">

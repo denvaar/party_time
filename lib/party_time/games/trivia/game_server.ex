@@ -89,7 +89,15 @@ defmodule PartyTime.Games.Trivia.GameServer do
       game
     )
 
-    {:noreply, %{state | game: game}}
+    category_name = List.first(game.categories).name
+
+    PartyTimeWeb.Endpoint.broadcast!(
+      game_updates_topic(state.game_id),
+      "game_meta_update",
+      %{selected_category: category_name}
+    )
+
+    {:noreply, %{state | selected_category: category_name, game: game}}
   end
 
   def handle_cast({:view_category, category_name}, state) do
@@ -279,10 +287,7 @@ defmodule PartyTime.Games.Trivia.GameServer do
       current_question: current_question,
       buzz_in_seconds_remaining: nil,
       player_answer: nil,
-      buzzed_in_user_id: nil,
-      question_answer_history: [
-        {state.buzzed_in_user_id, "--", false} | state.question_answer_history
-      ]
+      buzzed_in_user_id: nil
     }
 
     PartyTimeWeb.Endpoint.broadcast!(
@@ -351,10 +356,7 @@ defmodule PartyTime.Games.Trivia.GameServer do
       current_question: nil,
       buzz_in_seconds_remaining: nil,
       buzzed_in_user_id: nil,
-      player_answer: nil,
-      question_answer_history: [
-        {state.buzzed_in_user_id, state.player_answer, true} | state.question_answer_history
-      ]
+      player_answer: nil
     }
 
     PartyTimeWeb.Endpoint.broadcast!(
@@ -392,10 +394,7 @@ defmodule PartyTime.Games.Trivia.GameServer do
       current_question: current_question,
       buzz_in_seconds_remaining: nil,
       buzzed_in_user_id: nil,
-      player_answer: nil,
-      question_answer_history: [
-        {state.buzzed_in_user_id, state.player_answer, false} | state.question_answer_history
-      ]
+      player_answer: nil
     }
 
     PartyTimeWeb.Endpoint.broadcast!(
@@ -501,7 +500,6 @@ defmodule PartyTime.Games.Trivia.GameServer do
       player_answer: nil,
       buzz_in_seconds_remaining: nil,
       buzzed_in_user_id: nil,
-      question_answer_history: [],
       answer_status: nil
     }
   end
