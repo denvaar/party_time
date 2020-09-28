@@ -19,6 +19,8 @@
   <input type="hidden" id="selected-category" value="<%= Base.encode64(@selected_category) %>" phx-hook="selectedCategory" />
 <% end %>
 
+<input type="hidden" value="<%= controlling_player(@game).user_id %>" id="controlling-player" phx-hook="controllingPlayer" data-inControl="<%= player_has_control?(@game, @current_user_id) %>" />
+
 
 <div id="click-area">
   <%= if @selected_category do %>

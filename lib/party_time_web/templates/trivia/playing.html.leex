@@ -3,6 +3,10 @@
 
   <div id="host-view" phx-hook="hostView"></div>
   <div class="margin-container">
+    <%= form_for :controlling_player, "#", [phx_submit: :"give-control"], fn f -> %>
+      <%= select f, :user_id, players_as_select_options(@game.players) %>
+      <%= submit "Give control" %>
+    <% end %>
     <%= if @current_question do %>
       <h3><%= @selected_category %></h3>
       <h4><%= @current_question.prompt %></h4>
@@ -22,7 +26,7 @@
         <button phx-click="judge-answer" value="incorrect">Incorrect</button>
       <% end %>
     <% else %>
-      <p><b><%= controlling_player(@game).display_name %></b> is choosing a category and question...</p>
+      <p><b><%= controlling_player(@game).display_name %></b> has control of the board.</p>
     <% end %>
   </div>
 <% else %>

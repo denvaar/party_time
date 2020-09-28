@@ -8,7 +8,7 @@ defmodule PartyTimeWeb.PlayTriviaLive do
   def find_game(game_id) do
     pid =
       game_id
-      |> String.to_atom()
+      |> atomify()
       |> Process.whereis()
 
     if pid do
@@ -42,7 +42,7 @@ defmodule PartyTimeWeb.PlayTriviaLive do
     {:ok,
      assign(socket,
        game: nil,
-       game_id: game_id,
+       game_id: "#{game_id}",
        game_status: :lobby,
        is_host: is_host,
        current_user_id: current_user.id,
@@ -51,8 +51,44 @@ defmodule PartyTimeWeb.PlayTriviaLive do
      )}
   end
 
-  def check_if_started(%{status: :playing}, {_game_id, socket, _session}) do
-    {:ok, assign(socket, game_status: :already_started)}
+  def check_if_started(%{status: :playing}, {game_id, socket, session}) do
+    with %{id: current_user_id} <- PartyTimeWeb.Credentials.get_user(socket, session),
+         game <- GameServer.get_state(atomify(game_id)) do
+      player =
+        game.players
+        |> Enum.find(fn p -> p.user_id == current_user_id end)
+
+      if player do
+        # Updates about the game state changes
+        PartyTimeWeb.Endpoint.subscribe("#{@game_name}:updates:#{game_id}")
+        # Updates not neccessarily about the game state itself...idk how to explain
+        PartyTimeWeb.Endpoint.subscribe("#{@game_name}:meta:#{game_id}")
+
+        PartyTime.Presence.track_player(
+          "#{@game_name}:presences:#{game_id}",
+          current_user_id,
+          %{is_host: false}
+        )
+
+        # GameServer.force_update(atomify(game_id))
+
+        {:ok,
+         assign(socket,
+           game: game,
+           game_id: "#{game_id}",
+           game_status: :playing,
+           is_host: false,
+           current_user_id: current_user_id,
+           selected_category: nil,
+           current_question: nil
+         )}
+      else
+        {:ok, assign(socket, game_status: :already_started)}
+      end
+    else
+      _ ->
+        {:ok, assign(socket, game_status: :already_started)}
+    end
   end
 
   def check_if_started(_game, {game_id, socket, _session}) do
@@ -85,7 +121,7 @@ defmodule PartyTimeWeb.PlayTriviaLive do
   @impl true
   def handle_event("start-game", _params, socket) do
     socket.assigns.game_id
-    |> String.to_atom()
+    |> atomify()
     |> GameServer.set_game_status(:playing)
 
     {:noreply, socket}
@@ -93,7 +129,7 @@ defmodule PartyTimeWeb.PlayTriviaLive do
 
   def handle_event("buzz-in", _params, socket) do
     socket.assigns.game_id
-    |> String.to_atom()
+    |> atomify()
     |> GameServer.buzz_in(socket.assigns.current_user_id)
 
     {:noreply, socket}
@@ -101,8 +137,16 @@ defmodule PartyTimeWeb.PlayTriviaLive do
 
   def handle_event("judge-answer", %{"value" => verdict}, socket) do
     socket.assigns.game_id
-    |> String.to_atom()
+    |> atomify()
     |> GameServer.judge_answer(verdict)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("give-control", %{"controlling_player" => %{"user_id" => user_id}}, socket) do
+    socket.assigns.game_id
+    |> atomify()
+    |> GameServer.give_control(String.to_integer(user_id))
 
     {:noreply, socket}
   end
@@ -112,17 +156,17 @@ defmodule PartyTimeWeb.PlayTriviaLive do
         %{"player_answer" => %{"answer" => player_answer}},
         socket
       ) do
-    GameServer.type_answer(String.to_atom(socket.assigns.game_id), player_answer)
+    GameServer.type_answer(atomify(socket.assigns.game_id), player_answer)
     {:noreply, socket}
   end
 
   def handle_event("submit-answer", %{"player_answer" => %{"answer" => player_answer}}, socket) do
-    GameServer.submit_answer(String.to_atom(socket.assigns.game_id), player_answer)
+    GameServer.submit_answer(atomify(socket.assigns.game_id), player_answer)
     {:noreply, socket}
   end
 
   def handle_event("select-category", %{"selected_category" => selected_category}, socket) do
-    GameServer.view_category(String.to_atom(socket.assigns.game_id), selected_category)
+    GameServer.view_category(atomify(socket.assigns.game_id), selected_category)
     {:noreply, socket}
   end
 
@@ -132,7 +176,7 @@ defmodule PartyTimeWeb.PlayTriviaLive do
         socket
       ) do
     socket.assigns.game_id
-    |> String.to_atom()
+    |> atomify()
     |> GameServer.pick_question(id, category_name)
 
     {:noreply, socket}
@@ -146,4 +190,8 @@ defmodule PartyTimeWeb.PlayTriviaLive do
   def handle_info(%{event: "game_meta_update", payload: meta}, socket) do
     {:noreply, assign(socket, Map.to_list(meta))}
   end
+
+  # TODO: use String.to_existing_atom instead
+  defp atomify(game_id) when is_atom(game_id), do: game_id
+  defp atomify(game_id), do: String.to_atom(game_id)
 end

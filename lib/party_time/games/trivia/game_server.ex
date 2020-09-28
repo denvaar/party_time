@@ -1,7 +1,7 @@
 defmodule PartyTime.Games.Trivia.GameServer do
   use GenServer, restart: :temporary
 
-  alias PartyTime.Games.Trivia.Game
+  alias PartyTime.Games.Trivia.{PlayerMonitor, Game}
   alias PartyTime.Accounts
 
   # client
@@ -10,8 +10,14 @@ defmodule PartyTime.Games.Trivia.GameServer do
     GenServer.start_link(__MODULE__, {game_id, game}, name: game_id)
   end
 
+  def force_update(game_id), do: GenServer.cast(game_id, :force_update)
+
   def get_state(game_id) do
     GenServer.call(game_id, :get_state)
+  end
+
+  def give_control(game_id, user_id) do
+    GenServer.cast(game_id, {:give_control, user_id})
   end
 
   def set_game_status(game_id, status) do
@@ -98,6 +104,28 @@ defmodule PartyTime.Games.Trivia.GameServer do
     )
 
     {:noreply, %{state | selected_category: category_name, game: game}}
+  end
+
+  def handle_cast({:give_control, user_id}, state) do
+    game = Game.give_control(state.game, user_id)
+
+    PartyTimeWeb.Endpoint.broadcast!(
+      game_updates_topic(state.game_id),
+      "game_state_update",
+      game
+    )
+
+    {:noreply, %{state | game: game}}
+  end
+
+  def handle_cast(:force_update, state) do
+    PartyTimeWeb.Endpoint.broadcast!(
+      game_updates_topic(state.game_id),
+      "game_meta_update",
+      state
+    )
+
+    {:noreply, state}
   end
 
   def handle_cast({:view_category, category_name}, state) do
@@ -425,6 +453,25 @@ defmodule PartyTime.Games.Trivia.GameServer do
      |> Map.merge(meta_state)}
   end
 
+  def handle_info({:remove_player, player}, state) do
+    game = Game.remove_player(state.game, player.user_id)
+
+    game =
+      if length(game.players) > 0 && Enum.all?(game.players, fn p -> !p.is_in_control end) do
+        Game.give_control(game, List.first(game.players).user_id)
+      else
+        game
+      end
+
+    PartyTimeWeb.Endpoint.broadcast!(
+      game_updates_topic(state.game_id),
+      "game_state_update",
+      game
+    )
+
+    {:noreply, %{state | game: game}}
+  end
+
   def handle_info(%{event: "presence_diff", payload: %{joins: joins, leaves: leaves}}, state) do
     game =
       state.game
@@ -440,7 +487,7 @@ defmodule PartyTime.Games.Trivia.GameServer do
     PartyTimeWeb.Endpoint.broadcast!(
       game_meta_topic(state.game_id),
       "game_meta_update",
-      initial_meta()
+      Map.delete(state, :game)
     )
 
     new_state = %{state | game: game}
@@ -466,10 +513,18 @@ defmodule PartyTime.Games.Trivia.GameServer do
     |> Enum.map(fn {id, _} -> String.to_integer(id) end)
     |> Accounts.get_users()
     |> Enum.reduce(game, fn {_id, user}, game ->
-      Game.add_player(
-        game,
-        {user.id, "#{user.given_name} #{String.first(user.family_name)}.", user.picture}
-      )
+      pid = Process.whereis(:"player_#{user.id}")
+
+      if pid do
+        PlayerMonitor.dont_kick(pid)
+        game
+        # TODO: update player to be not disconnected
+      else
+        Game.add_player(
+          game,
+          {user.id, "#{user.given_name} #{String.first(user.family_name)}.", user.picture}
+        )
+      end
     end)
   end
 
@@ -477,13 +532,18 @@ defmodule PartyTime.Games.Trivia.GameServer do
     leaves
     |> Map.keys()
     |> Enum.reduce(game, fn id, game ->
-      game = Game.remove_player(game, String.to_integer(id))
+      player = Enum.find(game.players, fn p -> p.user_id == String.to_integer(id) end)
+      # create a process for this player
+      {:ok, _pid} = PlayerMonitor.start_link(player, self())
+      game
+      # TODO: mark player as disconnected
+      # game = Game.remove_player(game, String.to_integer(id))
 
-      if length(game.players) > 0 && Enum.all?(game.players, fn p -> !p.is_in_control end) do
-        Game.give_control(game, List.first(game.players).user_id)
-      else
-        game
-      end
+      # if length(game.players) > 0 && Enum.all?(game.players, fn p -> !p.is_in_control end) do
+      #   Game.give_control(game, List.first(game.players).user_id)
+      # else
+      #   game
+      # end
     end)
   end
 
