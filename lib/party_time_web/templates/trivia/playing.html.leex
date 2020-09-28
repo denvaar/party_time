@@ -20,7 +20,7 @@
       <%= if buzzed_in_player do %>
         <p><i><%= buzzed_in_player.display_name %> buzzed in...</i></p>
       <% end %>
-      <%= if @player_answer && @answer_status == :pending do %>
+      <%= if @player_answer && @answer_status == :pending && buzzed_in_player do %>
         <p><%= buzzed_in_player.display_name %>'s answer: <i><%= @player_answer %></i></p>
         <button phx-click="judge-answer" value="correct">Correct</button>
         <button phx-click="judge-answer" value="incorrect">Incorrect</button>
