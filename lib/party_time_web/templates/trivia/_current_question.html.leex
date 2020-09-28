@@ -78,7 +78,7 @@
     </div>
   <% end %>
   <div class='buzzer-area <%= if @buzzed_in_user_id, do: "hidden", else: "" %> ' id="answer-button-container" phx-hook="answerButtonContainer">
-    <%= if player(@game.players, @current_user_id).able_to_answer do %>
+    <%= if player(@game.players, @current_user_id).able_to_answer && !@buzzed_in_user_id do %>
       <button class="buzzer" phx-click="buzz-in">Answer</button>
     <% else %>
       <button class="buzzer" disabled>Answer</button>

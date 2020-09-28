@@ -155,11 +155,21 @@ defmodule PartyTime.Games.Trivia.GameServer do
     )
 
     question_timeout_timer_ref =
-      Process.send_after(
-        self(),
-        {:question_timeout},
-        10_000
-      )
+      if state.question_timeout_timer_ref do
+        Process.cancel_timer(state.question_timeout_timer_ref)
+
+        Process.send_after(
+          self(),
+          {:question_timeout},
+          10_000
+        )
+      else
+        Process.send_after(
+          self(),
+          {:question_timeout},
+          10_000
+        )
+      end
 
     {:noreply,
      %{
@@ -252,11 +262,21 @@ defmodule PartyTime.Games.Trivia.GameServer do
     )
 
     timer_ref =
-      Process.send_after(
-        self(),
-        {:tick, 15},
-        10
-      )
+      if state.timer_ref do
+        Process.cancel_timer(state.timer_ref)
+
+        Process.send_after(
+          self(),
+          {:tick, 15},
+          1
+        )
+      else
+        Process.send_after(
+          self(),
+          {:tick, 15},
+          1
+        )
+      end
 
     {:noreply, %{state | timer_ref: timer_ref, buzzed_in_user_id: user_id}}
   end
@@ -274,6 +294,7 @@ defmodule PartyTime.Games.Trivia.GameServer do
   def handle_info({:tick, 0}, state) do
     # A players buzzed in but didn't answer in time
 
+    # TODO: how can buzzed_in_user_id be nil?
     game =
       Game.incorrect_answer(
         state.game,
@@ -315,7 +336,8 @@ defmodule PartyTime.Games.Trivia.GameServer do
       current_question: current_question,
       buzz_in_seconds_remaining: nil,
       player_answer: nil,
-      buzzed_in_user_id: nil
+      buzzed_in_user_id: nil,
+      answer_status: nil
     }
 
     PartyTimeWeb.Endpoint.broadcast!(
@@ -533,17 +555,9 @@ defmodule PartyTime.Games.Trivia.GameServer do
     |> Map.keys()
     |> Enum.reduce(game, fn id, game ->
       player = Enum.find(game.players, fn p -> p.user_id == String.to_integer(id) end)
-      # create a process for this player
       {:ok, _pid} = PlayerMonitor.start_link(player, self())
       game
       # TODO: mark player as disconnected
-      # game = Game.remove_player(game, String.to_integer(id))
-
-      # if length(game.players) > 0 && Enum.all?(game.players, fn p -> !p.is_in_control end) do
-      #   Game.give_control(game, List.first(game.players).user_id)
-      # else
-      #   game
-      # end
     end)
   end
 
