@@ -116,6 +116,25 @@ hooks.categorySwiper = {
   },
 };
 
+hooks.controllingPlayer = {
+  updated() {
+    if (this.el.dataset.incontrol === "true") {
+      intersectionObserver("category-swiper", this);
+
+      removeEventListeners(document.getElementById("category-swiper"));
+      // this.el.addEventListener("click", notify);
+      // this.el.addEventListener("touchstart", notify);
+      // this.el.addEventListener("touchmove", notify);
+
+      // const clickArea = document.getElementById("click-area");
+      // if (clickArea) {
+      //   clickArea.addEventListener("click", notify);
+      //   clickArea.addEventListener("touchstart", notify);
+      // }
+    }
+  },
+};
+
 window.Clipboard = (function(window, document, navigator) {
   var textArea, copy;
 

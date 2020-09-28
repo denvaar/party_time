@@ -1,6 +1,10 @@
 defmodule PartyTimeWeb.TriviaView do
   use PartyTimeWeb, :view
 
+  def players_as_select_options(players) do
+    for player <- players, into: [], do: {String.to_atom(player.display_name), player.user_id}
+  end
+
   def lobby_players(players) do
     players
     |> Enum.zip(length(players)..1)
