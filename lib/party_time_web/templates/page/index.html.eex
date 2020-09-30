@@ -7,7 +7,12 @@
   <%= if PartyTime.Accounts.is_host?(@current_user) do %>
     <div class="available-game">
       <p><%= link to: Routes.page_path(@conn, :new_game) do %>
-        Trivia
+        Start New Trivia Game
+      <% end %></p>
+    </div>
+    <div class="available-game">
+      <p><%= link to: Routes.triviah_path(@conn, :new) do %>
+        Start New Triviah Game
       <% end %></p>
     </div>
   <% end %>

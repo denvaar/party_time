@@ -25,7 +25,8 @@ config :party_time, PartyTimeWeb.Endpoint,
 # using game_code
 config :party_time, :games,
   modules: [
-    {"trivia", PartyTimeWeb.PlayTriviaLive, PartyTimeWeb.TriviaView}
+    {"trivia", PartyTimeWeb.PlayTriviaLive, PartyTimeWeb.TriviaView},
+    {"triviah", PartyTimeWeb.TriviahLive, PartyTimeWeb.TriviahView}
   ]
 
 # Configures Elixir's Logger

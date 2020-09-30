@@ -14,9 +14,11 @@ defmodule PartyTime.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: PartyTime.PubSub},
       {PartyTime.DynamicSupervisor, []},
+      {Registry, keys: :unique, name: :game_registry},
       PartyTime.Presence,
       # Start the Endpoint (http/https)
-      PartyTimeWeb.Endpoint
+      PartyTimeWeb.Endpoint,
+      {PartyTime.LiveMonitor, %{}}
       # Start a worker by calling: PartyTime.Worker.start_link(arg)
       # {PartyTime.Worker, arg}
     ]

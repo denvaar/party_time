@@ -1,0 +1,7 @@
+<h1>Lobby</h1>
+
+<%= if @game do %>
+  <%= for player <- @game.players do %>
+    <p><%= player.display_name %></p>
+  <% end %>
+<% end %>

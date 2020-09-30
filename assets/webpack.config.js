@@ -12,17 +12,18 @@ module.exports = (env, options) => {
     optimization: {
       minimizer: [
         new TerserPlugin({ cache: true, parallel: true, sourceMap: devMode }),
-        new OptimizeCSSAssetsPlugin({})
-      ]
+        new OptimizeCSSAssetsPlugin({}),
+      ],
     },
     entry: {
       app: glob.sync("./vendor/**/*.js").concat(["./js/app.js"]),
-      trivia: glob.sync("./vendor/**/*.js").concat(["./js/trivia.js"])
+      trivia: glob.sync("./vendor/**/*.js").concat(["./js/trivia.js"]),
+      triviah: glob.sync("./vendor/**/*.js").concat(["./js/triviah.js"]),
     },
     output: {
       filename: "[name].js",
       path: path.resolve(__dirname, "../priv/static/js"),
-      publicPath: "/js/"
+      publicPath: "/js/",
     },
     devtool: devMode ? "source-map" : undefined,
     module: {
@@ -31,8 +32,8 @@ module.exports = (env, options) => {
           test: /\.js$/,
           exclude: /node_modules/,
           use: {
-            loader: "babel-loader"
-          }
+            loader: "babel-loader",
+          },
         },
         {
           test: /\.[s]?css$/,
@@ -40,19 +41,19 @@ module.exports = (env, options) => {
             MiniCssExtractPlugin.loader,
             {
               loader: "css-loader",
-              options: {}
+              options: {},
             },
             {
               loader: "sass-loader",
-              options: {}
-            }
-          ]
-        }
-      ]
+              options: {},
+            },
+          ],
+        },
+      ],
     },
     plugins: [
       new MiniCssExtractPlugin({ filename: "../css/[name].css" }),
-      new CopyWebpackPlugin([{ from: "static/", to: "../" }])
-    ]
+      new CopyWebpackPlugin([{ from: "static/", to: "../" }]),
+    ],
   };
 };

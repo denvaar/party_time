@@ -3,9 +3,11 @@ defmodule PartyTimeWeb.GameFinder do
   @default_view PartyTimeWeb.PageView
 
   def game_pid(game_code) do
-    game_code
-    |> String.to_atom()
-    |> Process.whereis()
+    with [{pid, _}] <- Registry.lookup(:game_registry, game_code) do
+      pid
+    else
+      _ -> nil
+    end
   end
 
   def find_liveview_module(game_code) do
